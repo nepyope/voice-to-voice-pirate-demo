@@ -146,5 +146,6 @@ These are CPU protocol/config tests, not GPU inference tests.
 
 `Dockerfile.backend` builds `speech-to-speech` at commit
 `ca5c33c9bb5e381288d315d1f8da122613845c4c` with the patches in `patches/`.
-`patches/upstream/` has the two feature diffs rebased on upstream main
-`a6576590`; see [UPSTREAMING.md](UPSTREAMING.md). Licensing: [NOTICE.md](NOTICE.md).
+Per-language OmniVoice references are proposed upstream in
+[huggingface/speech-to-speech#584](https://github.com/huggingface/speech-to-speech/pull/584);
+`patches/remote-voice.patch` has not been proposed yet. Licensing: [NOTICE.md](NOTICE.md).
