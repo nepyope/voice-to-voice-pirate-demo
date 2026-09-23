@@ -9,29 +9,11 @@ def voice_directory(env) -> Path:
     return Path(env.get("VOICES_DIR", "/voices"))
 
 
-def remote_audio_uri(audio: Path, env) -> str:
-    """Map a local reference into the corresponding mount on the TTS server."""
-    root = Path(env.get("VOICES_DIR", "/voices")).resolve()
-    remote = Path(env.get("TTS_VOICES_DIR", "/voices"))
-    if not remote.is_absolute():
-        raise ValueError("TTS_VOICES_DIR must be an absolute path on the TTS server")
-    try:
-        relative = audio.resolve().relative_to(root)
-    except ValueError as exc:
-        raise ValueError("Reference audio must be inside VOICES_DIR") from exc
-    return (remote / relative).as_uri()
-
-
 def language_key(language: str) -> str:
     code = language.strip().lower().replace("_", "-")
     if not re.fullmatch(r"[a-z]{2,3}(?:-[a-z0-9]{2,8})*", code):
         raise ValueError(f"Invalid reference language code: {language!r}")
     return code
-
-
-def reference_for_language(default: dict, references: dict, language: str | None) -> dict:
-    code = (language or "").strip().lower().replace("_", "-")
-    return references.get(code, references.get(code.split("-")[0], default))
 
 
 def validate_voice(directory: Path) -> dict:

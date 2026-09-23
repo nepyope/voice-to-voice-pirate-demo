@@ -6,8 +6,7 @@ Pirate answers in the same language, in his own cloned voice.
 Pipeline, built on Hugging Face [`speech-to-speech`](https://github.com/huggingface/speech-to-speech):
 Silero VAD + Smart Turn → Parakeet-TDT 0.6B v3 (transcript + language) →
 Qwen3-4B-Instruct (short pirate reply) → OmniVoice (voice cloned from the
-reference clip for that language). The same Realtime endpoint works with the
-models in-process or served by vLLM / vLLM-Omni.
+reference clip for that language). The LLM runs in-process or on vLLM.
 
 **Status (2026-09-23):** all three inference modes run end-to-end on an RTX 5090
 Laptop (24 GB, driver 580). Numbers, fixes and caveats are in
@@ -69,26 +68,14 @@ not expose the UI publicly.
 | --- | --- | --- | --- | --- |
 | In-process | `compose.yaml` | LLM and OmniVoice inside `s2s` | ~2.5 s | 17 GB |
 | LLM on vLLM (recommended) | `+ compose.llm-vllm.yaml` | Qwen on `vllm-openai`, OmniVoice in `s2s` | ~2 s | 20 GB |
-| Full vLLM | `+ compose.vllm.yaml + compose.llm-vllm.yaml` | Qwen on `vllm-openai`, OmniVoice on `vllm-omni` | ~4 s | 19 GB |
 
 First-audio times are measured from a text request and exclude the ~0.5–0.8 s of
-silence turn detection waits for. VRAM is mostly vLLM's up-front reservation
-(`LLM_GPU_MEMORY_UTILIZATION`, `TTS_GPU_MEMORY_UTILIZATION` in `.env`), not what
-the models need.
+silence turn detection waits for. In vLLM mode, VRAM is mostly vLLM's up-front
+reservation (`LLM_GPU_MEMORY_UTILIZATION` in `.env`), not what the model needs.
 
-Full vLLM mode is slower because vLLM-Omni runs OmniVoice in float32 (bfloat16
-crashes its CUDA-graph warmup) and re-processes the reference clip with every
-request: a line takes ~0.8 s to synthesize with no reference, ~1.65 s with a 6 s
-reference and ~2.7 s with the current ~11 s clips. Its value is that LLM and TTS
-become shared services that several clients can use.
-
-When starting full vLLM mode, `llm` may fail once with "No available memory for
-the cache blocks" while `tts` is still capturing CUDA graphs; run `up -d` again.
-
-Images: `vllm/vllm-openai:v0.29.0-cu129` (`v0.30.0-cu129` crashes on import) and
-`vllm/vllm-omni:v0.28.0`. Preflight modes are `local`, `vllm-llm`, `vllm-tts` and
-`vllm`; add `--check-images` to verify tags. Preflight checks config, voice files,
-Docker and driver; it does not prove inference.
+Image: `vllm/vllm-openai:v0.29.0-cu129` (`v0.30.0-cu129` crashes on import).
+Preflight modes are `local` and `vllm-llm`; add `--check-images` to verify the tag.
+Preflight checks config, voice files, Docker and driver; it does not prove inference.
 
 For an external LLM, omit `compose.llm-vllm.yaml` and set `LLM_BASE_URL`,
 `LLM_MODEL` and `OPENAI_API_KEY` in `.env`.
@@ -99,7 +86,7 @@ Parakeet transcribes each turn and detects its language (lingua on the transcrip
 turns under 20 characters keep the previous language, initially English). The
 language goes to the LLM prompt and to the TTS handler, which picks
 `voices/langs/<code>.wav` + `.txt`, then the base language, then
-`voices/pirate_ref.wav`. Both TTS routes use the same rule. See
+`voices/pirate_ref.wav`. See
 [voices/README.md](voices/README.md) and, for how the clips were made,
 [docs/VOICE_PIPELINE.md](docs/VOICE_PIPELINE.md).
 
@@ -109,10 +96,6 @@ Run inside `s2s` with the same `-f` list you launched with. Outputs go to
 `artifacts/`.
 
 ```bash
-# Direct vLLM-Omni clone request (full vLLM mode only)
-docker compose -f compose.yaml -f compose.vllm.yaml -f compose.llm-vllm.yaml exec s2s \
-  python scripts/smoke_tts.py --language fr --output /artifacts/tts-fr.wav
-
 # Text → spoken reply through the whole relay (bypasses STT)
 docker compose -f compose.yaml -f compose.llm-vllm.yaml exec s2s \
   python scripts/smoke_realtime.py --url ws://ui:7860/api/realtime \
@@ -147,5 +130,5 @@ These are CPU protocol/config tests, not GPU inference tests.
 `Dockerfile.backend` builds `speech-to-speech` at commit
 `ca5c33c9bb5e381288d315d1f8da122613845c4c` with the patches in `patches/`.
 Per-language OmniVoice references are proposed upstream in
-[huggingface/speech-to-speech#584](https://github.com/huggingface/speech-to-speech/pull/584);
-`patches/remote-voice.patch` has not been proposed yet. Licensing: [NOTICE.md](NOTICE.md).
+[huggingface/speech-to-speech#584](https://github.com/huggingface/speech-to-speech/pull/584).
+Licensing: [NOTICE.md](NOTICE.md).

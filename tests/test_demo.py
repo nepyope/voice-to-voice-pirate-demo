@@ -46,9 +46,8 @@ def test_invalid_reference_fails_before_model_start(voice, problem):
         validate_voice(voice)
 
 
-@pytest.mark.parametrize("mode", ["local", "remote"])
-def test_launch_preserves_language_and_clone_contract(voice, mode):
-    command = build_command({"TTS_MODE": mode, "VOICES_DIR": str(voice)}, validate_voice(voice), "Pirate instructions")
+def test_launch_preserves_language_and_clone_contract(voice):
+    command = build_command({"VOICES_DIR": str(voice)}, validate_voice(voice), "Pirate instructions")
     args = dict(zip(command[2::2], command[3::2]))
     assert args["--host"] == "0.0.0.0"
     assert "--parakeet_tdt_language" not in args  # None = auto; literal auto leaks into short-turn fallback.
@@ -56,37 +55,24 @@ def test_launch_preserves_language_and_clone_contract(voice, mode):
     assert args["--enable_lang_prompt"] == "true"
     assert args["--init_chat_prompt"] == "Pirate instructions"
     assert args["--stream_batch_sentences"] == "1"
-    if mode == "local":
-        assert args["--omnivoice_ref_text"] == "Welcome aboard, matey!"
-        assert "--omnivoice_language" not in args
-    else:
-        assert args["--openai_tts_ref_audio"] == "file:///voices/pirate_ref.wav"
-        assert args["--openai_tts_response_format"] == "wav"
-        assert args["--openai_tts_stream"] == "false"
-        assert "--openai_tts_language" not in args
+    assert args["--omnivoice_ref_text"] == "Welcome aboard, matey!"
+    assert "--omnivoice_language" not in args
 
 
 def test_per_language_voices_are_passed_only_when_present_and_valid(voice):
-    command = build_command({"TTS_MODE": "local"}, validate_voice(voice), "Painty")
+    command = build_command({}, validate_voice(voice), "Painty")
     assert "--omnivoice_ref_voices_dir" not in command  # no voices/langs directory
     langs = voice / "langs"
     langs.mkdir()
     shutil.copy(voice / "pirate_ref.wav", langs / "fr.wav")
     (langs / "fr.txt").write_text("Prêts les enfants ?", encoding="utf-8")
-    command = build_command({"TTS_MODE": "local"}, validate_voice(voice), "Painty")
+    command = build_command({}, validate_voice(voice), "Painty")
     args = dict(zip(command[2::2], command[3::2]))
     assert args["--omnivoice_ref_voices_dir"] == str(langs)
     assert args["--omnivoice_ref_audio"] == str(voice / "pirate_ref.wav")  # default stays as fallback
     (langs / "fr.txt").unlink()  # a clip without its transcript must fail loudly, not be skipped
     with pytest.raises(ValueError, match="fr.wav"):
-        build_command({"TTS_MODE": "local"}, validate_voice(voice), "Painty")
-    with pytest.raises(ValueError, match="fr.wav"):
-        build_command({"TTS_MODE": "remote", "VOICES_DIR": str(voice)}, validate_voice(voice), "Painty")
-    (langs / "fr.txt").write_text("Prêts les enfants ?", encoding="utf-8")
-    remote = build_command({"TTS_MODE": "remote", "VOICES_DIR": str(voice)}, validate_voice(voice), "Painty")
-    args = dict(zip(remote[2::2], remote[3::2]))
-    assert args["--openai_tts_ref_voices_dir"] == str(langs)
-    assert args["--openai_tts_ref_voices_base_url"] == "file:///voices/langs"
+        build_command({}, validate_voice(voice), "Painty")
 
 
 def test_remote_llm_requires_model_and_keeps_key_out_of_argv(voice):
@@ -199,14 +185,14 @@ def test_cross_origin_connection_rejected():
         assert error.value.code == 1008
 
 
-@pytest.mark.parametrize("mode,remote_llm", [("local", False), ("remote", False), ("local", True)])
-def test_launch_flags_belong_to_selected_pinned_backends(voice, mode, remote_llm):
+@pytest.mark.parametrize("remote_llm", [False, True])
+def test_launch_flags_belong_to_selected_pinned_backends(voice, remote_llm):
     inventory = json.loads((ROOT / "tests/fixtures/cli-argument-names.json").read_text())["arguments"]
     groups = ["module_arguments", "realtime_server_arguments", "language_model_base_arguments", "parakeet_tdt_arguments",
-              "omnivoice_tts_arguments" if mode == "local" else "openai_tts_arguments"]
+              "omnivoice_tts_arguments"]
     groups += ["responses_api_language_model_arguments", "chat_completions_language_model_arguments"] if remote_llm else ["language_model_arguments"]
     allowed = {"--" + name for group in groups for name in inventory[group]}
-    env = {"TTS_MODE": mode, "VOICES_DIR": str(voice)}
+    env = {"VOICES_DIR": str(voice)}
     if remote_llm:
         env.update(LLM_BASE_URL="https://example.com/v1", LLM_MODEL="test-model")
     command = build_command(env, validate_voice(voice), "Painty")

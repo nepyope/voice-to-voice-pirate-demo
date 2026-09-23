@@ -14,10 +14,10 @@ python3 scripts/preflight.py --mode local --reachy
 docker compose -f compose.yaml -f compose.reachy.yaml up -d --build
 ```
 
-For both vLLM services:
+With the LLM on vLLM:
 
 ```bash
-docker compose -f compose.yaml -f compose.vllm.yaml -f compose.llm-vllm.yaml -f compose.reachy.yaml up -d --build
+docker compose -f compose.yaml -f compose.llm-vllm.yaml -f compose.reachy.yaml up -d --build
 ```
 
 The overlay publishes `127.0.0.1:8765` by default. From the machine running the
@@ -60,9 +60,8 @@ machine if the demo UI already occupies that port.
 The profile has an empty `default_tools` list. Reset any saved per-profile tool
 override before an audio-only run. It uses the same language-following prompt as
 the browser. The voice comes from `voices/` on the GPU server. Reachy's UI
-still lists Qwen speakers; the patched remote handler retains the configured
-clone instead of forwarding an unrelated client preset. Local OmniVoice already
-uses its configured clone. The app may send its normal startup greeting; test
+still lists Qwen speakers; OmniVoice ignores that choice and uses its configured
+clone. The app may send its normal startup greeting; test
 language switching on subsequent spoken turns.
 
 ## Verify the connection

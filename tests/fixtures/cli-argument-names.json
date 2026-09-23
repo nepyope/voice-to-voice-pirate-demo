@@ -73,25 +73,6 @@
       "omnivoice_ref_voices_dir",
       "omnivoice_speed",
       "omnivoice_voice_clone_prompt"
-    ],
-    "openai_tts_arguments": [
-      "openai_tts_api_key",
-      "openai_tts_base_url",
-      "openai_tts_blocksize",
-      "openai_tts_instructions",
-      "openai_tts_language",
-      "openai_tts_model",
-      "openai_tts_ref_audio",
-      "openai_tts_ref_text",
-      "openai_tts_ref_voices_base_url",
-      "openai_tts_ref_voices_dir",
-      "openai_tts_response_format",
-      "openai_tts_sample_rate",
-      "openai_tts_speed",
-      "openai_tts_stream",
-      "openai_tts_task_type",
-      "openai_tts_timeout",
-      "openai_tts_voice"
     ]
   }
 }

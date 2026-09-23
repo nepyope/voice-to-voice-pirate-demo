@@ -5,15 +5,12 @@ import os
 import shlex
 from pathlib import Path
 
-from voice_files import remote_audio_uri, validate_language_voices, validate_voice, voice_directory
+from voice_files import validate_language_voices, validate_voice, voice_directory
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def build_command(env, voice, instructions):
-    mode = env.get("TTS_MODE", "local")
-    if mode not in {"local", "remote"}:
-        raise ValueError("TTS_MODE must be local or remote")
     pipelines = int(env.get("NUM_PIPELINES", "1"))
     if pipelines < 1:
         raise ValueError("NUM_PIPELINES must be at least 1")
@@ -36,25 +33,14 @@ def build_command(env, voice, instructions):
                     env.get("LLM_MODEL") or "Qwen/Qwen3-4B-Instruct-2507",
                     "--llm_device", "cuda", "--llm_torch_dtype", "float16",
                     "--llm_gen_max_new_tokens", "160"]
-    model = env.get("TTS_MODEL", "k2-fsa/OmniVoice")
-    if mode == "local":
-        command += ["--tts", "omnivoice", "--omnivoice_model_name", model,
-                    "--omnivoice_device", "cuda", "--omnivoice_dtype", "float16",
-                    "--omnivoice_ref_audio", voice["audio"], "--omnivoice_ref_text", voice["text"],
-                    "--omnivoice_num_steps", "32"]
-        # Optional per-language references (voices/langs/<lang>.wav + .txt): the clip matching the
-        # detected utterance language is cloned; anything else falls back to the default reference.
-        if languages:
-            command += ["--omnivoice_ref_voices_dir", str(langs_dir)]
-    else:
-        command += ["--tts", "openai", "--openai_tts_base_url", env.get("TTS_BASE_URL", "http://tts:8091/v1"),
-                    "--openai_tts_model", model, "--openai_tts_voice", "default",
-                    "--openai_tts_response_format", "wav", "--openai_tts_stream", "false",
-                    "--openai_tts_ref_audio", remote_audio_uri(Path(voice["audio"]), env),
-                    "--openai_tts_ref_text", voice["text"], "--openai_tts_api_key", "local-demo"]
-        if languages:
-            command += ["--openai_tts_ref_voices_dir", str(langs_dir),
-                        "--openai_tts_ref_voices_base_url", remote_audio_uri(langs_dir, env)]
+    command += ["--tts", "omnivoice", "--omnivoice_model_name", env.get("TTS_MODEL", "k2-fsa/OmniVoice"),
+                "--omnivoice_device", "cuda", "--omnivoice_dtype", "float16",
+                "--omnivoice_ref_audio", voice["audio"], "--omnivoice_ref_text", voice["text"],
+                "--omnivoice_num_steps", "32"]
+    # Optional per-language references (voices/langs/<lang>.wav + .txt): the clip matching the
+    # detected utterance language is cloned; anything else falls back to the default reference.
+    if languages:
+        command += ["--omnivoice_ref_voices_dir", str(langs_dir)]
     return command
 
 
@@ -70,7 +56,6 @@ if __name__ == "__main__":
     else:
         languages = sorted(validate_language_voices(Path(voice["audio"]).parent / "langs")) \
             if (Path(voice["audio"]).parent / "langs").is_dir() else []
-        print(f"Starting {os.environ.get('TTS_MODE', 'local')} TTS; "
-              f"reference {voice['sha256']}; "
+        print(f"Starting with reference {voice['sha256']}; "
               f"per-language voices: {', '.join(languages) or 'none'}", flush=True)
         os.execvp(command[0], command)

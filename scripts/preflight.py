@@ -16,9 +16,7 @@ from pathlib import Path
 from voice_files import validate_language_voices, validate_voice, voice_directory
 
 ROOT = Path(__file__).resolve().parents[1]
-MODES = {"local": [], "vllm-llm": ["compose.llm-vllm.yaml"],
-         "vllm-tts": ["compose.vllm.yaml"],
-         "vllm": ["compose.vllm.yaml", "compose.llm-vllm.yaml"]}
+MODES = {"local": [], "vllm-llm": ["compose.llm-vllm.yaml"]}
 
 
 def compose_command(mode, reachy=False):
@@ -39,12 +37,6 @@ def driver_issues(driver, services):
     problems, warnings = [], []
     if major < 570:
         problems.append("The CUDA 12.8 backend targets driver 570 or newer; upgrade on the GPU host.")
-    if "tts" in services:
-        image = services["tts"]["image"]
-        if image == "vllm/vllm-omni:v0.28.0" and major < 580:
-            problems.append("The default vLLM-Omni image uses CUDA 13; use driver 580+ or a separately validated CUDA 12 build.")
-        elif image != "vllm/vllm-omni:v0.28.0":
-            warnings.append("Custom TTS image: verify its CUDA/driver and OmniVoice compatibility separately.")
     if "llm" in services:
         image = services["llm"]["image"]
         if image == "vllm/vllm-openai:v0.29.0-cu129" and major < 580:
@@ -92,18 +84,13 @@ def check(mode="local", reachy=False, check_images=False):
                                "language_references": sorted(validate_language_voices(langs)) if langs.exists() else []}
             if not env.get("LLM_BASE_URL") and "llm" in services:
                 errors.append("LLM overlay is active but the backend has no LLM_BASE_URL.")
-            fractions = []
-            for name in ("llm", "tts"):
-                if name in services:
-                    args = services[name]["command"]
-                    fraction = float(args[args.index("--gpu-memory-utilization") + 1])
-                    if not 0 < fraction < 1:
-                        errors.append(f"{name} GPU memory fraction must be between 0 and 1.")
-                    fractions.append(fraction)
-                    if check_images:
-                        run(["docker", "manifest", "inspect", services[name]["image"]], timeout=60)
-            if sum(fractions) >= 0.9:
-                warnings.append("vLLM memory fractions leave little room for STT, CUDA overhead, and other processes.")
+            if "llm" in services:
+                args = services["llm"]["command"]
+                fraction = float(args[args.index("--gpu-memory-utilization") + 1])
+                if not 0 < fraction < 1:
+                    errors.append("llm GPU memory fraction must be between 0 and 1.")
+                if check_images:
+                    run(["docker", "manifest", "inspect", services["llm"]["image"]], timeout=60)
             if check_images:
                 checks["image_manifests"] = "available"
         except (ValueError, KeyError, OSError, subprocess.TimeoutExpired) as exc:

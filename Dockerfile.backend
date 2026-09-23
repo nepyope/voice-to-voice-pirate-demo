@@ -6,8 +6,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /opt/s2s
 RUN git init . && git remote add origin https://github.com/huggingface/speech-to-speech.git \
     && git fetch --depth 1 origin ${S2S_COMMIT} && git checkout --detach FETCH_HEAD
-COPY patches/remote-voice.patch /tmp/remote-voice.patch
-RUN git apply --check /tmp/remote-voice.patch && git apply /tmp/remote-voice.patch
 COPY patches/omnivoice-dependencies.patch /tmp/omnivoice-dependencies.patch
 RUN git apply --check /tmp/omnivoice-dependencies.patch && git apply /tmp/omnivoice-dependencies.patch
 COPY patches/per-language-voices.patch /tmp/per-language-voices.patch
