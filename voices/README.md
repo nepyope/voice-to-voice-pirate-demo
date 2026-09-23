@@ -7,8 +7,11 @@ not regenerated or listening-tested during this implementation pass.
 
 `VOICE=painty` selects the supplied top-level `pirate_ref.*` and `langs/` directory.
 These recordings and transcripts are retained for continuity in the complete
-bundle, and are excluded from the shareable export. Their source is documented
-in `langs/manifest.json`; inclusion here does not establish redistribution rights.
+bundle, and are excluded from the shareable export. Their source spans and transcripts
+are in `langs/manifest.json`; how they were cut (demucs separation, whisper word
+timestamps, block grid, pirate-vs-kids split, splice) is in
+[`docs/VOICE_PIPELINE.md`](../docs/VOICE_PIPELINE.md). Inclusion here does not
+establish redistribution rights.
 
 `VOICE=custom` uses `custom/pirate_ref.wav` and `custom/pirate_ref.txt`. Add optional
 `custom/langs/<language>.wav` and matching `.txt` pairs to use localized references.
