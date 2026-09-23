@@ -1,6 +1,6 @@
 # How the Painty reference clips were made
 
-This documents how `voices/pirate_ref.wav` (English) and `voices/langs/<lang>.wav` (30 dubs)
+This documents how `voices/pirate_ref.wav` (English) and `voices/langs/<lang>.wav` (29 dubs)
 were cut from two SpongeBob theme-song recordings on 2026-09-22. The output of this process
 is in the repo; the scripts were written ad hoc in `/tmp` and lost on reboot, so this is the
 recipe to rebuild them. `voices/langs/manifest.json` holds the exact result: per language
@@ -177,7 +177,7 @@ Known imperfections, all left as-is:
 
 ```bash
 cp langs/*.wav langs/*.txt langs/manifest.json voices/langs/
-cp langs/en.wav voices/pirate_ref.wav; cp langs/en.txt voices/pirate_ref.txt
+mv voices/langs/en.wav voices/pirate_ref.wav; mv voices/langs/en.txt voices/pirate_ref.txt  # English is the fallback, not a langs/ entry
 python3 - <<'EOF'
 import sys; sys.path.insert(0, "scripts"); from pathlib import Path
 from voice_files import validate_voice, validate_language_voices

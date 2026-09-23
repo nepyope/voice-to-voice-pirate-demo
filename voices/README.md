@@ -2,9 +2,9 @@
 
 Painty the Pirate, cloned from the SpongeBob theme song (music removed):
 
-- `pirate_ref.wav` + `pirate_ref.txt`: English reference, and the fallback for any
+- `pirate_ref.wav` + `pirate_ref.txt`: the English reference, also used for any
   language without its own clip.
-- `langs/<code>.wav` + `<code>.txt`: one reference per dub (30 languages), so each
+- `langs/<code>.wav` + `<code>.txt`: one reference per dub (29 languages), so each
   reply takes on that dub's accent. `langs/manifest.json` records the source spans.
 
 How the clips were cut (demucs separation, whisper word timestamps, block grid,

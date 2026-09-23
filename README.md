@@ -12,7 +12,7 @@ models in-process or served by vLLM / vLLM-Omni.
 **Status (2026-09-23):** all three inference modes run end-to-end on an RTX 5090
 Laptop (24 GB, driver 580). Numbers, fixes and caveats are in
 [GPU_VALIDATION_2026-09-23.md](GPU_VALIDATION_2026-09-23.md). Not yet done: a
-by-ear pass over all 30 languages and a run on a physical Reachy Mini.
+by-ear pass over all 30 voices (English + 29 dubs) and a run on a physical Reachy Mini.
 
 The voice is cut from Nickelodeon's SpongeBob theme song; keep this repo private.
 

@@ -31,7 +31,7 @@ def wav_bytes(pcm=b"\x00\x01" * 2400):
 def test_painty_loads_all_language_references_in_both_modes():
     env = {"VOICES_DIR": str(ROOT / "voices")}
     voice = validate_voice(voice_directory(env))
-    assert len(validate_language_voices(ROOT / "voices/langs")) == 30
+    assert len(validate_language_voices(ROOT / "voices/langs")) == 29
     for mode, prefix in (("local", "omnivoice"), ("remote", "openai_tts")):
         command = build_command({**env, "TTS_MODE": mode}, voice, "Painty")
         assert f"--{prefix}_ref_voices_dir" in command
