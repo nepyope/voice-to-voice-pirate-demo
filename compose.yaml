@@ -41,7 +41,6 @@ services:
       - ./voices:/voices:ro
       - hf-cache:/cache/huggingface
       - torch-cache:/cache/torch
-      - ./artifacts:/artifacts
     environment:
       HF_TOKEN: ${HF_TOKEN:-}
       TORCH_HOME: /cache/torch

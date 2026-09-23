@@ -38,7 +38,6 @@ Requirements:
 git clone git@github.com:nepyope/voice-to-voice-pirate-demo.git
 cd voice-to-voice-pirate-demo
 cp .env.example .env
-python3 scripts/preflight.py   # checks Docker, driver, compose config and voice files; does not prove inference
 docker compose up -d --build   # first build ~10 min, first start downloads ~12 GB
 docker compose logs -f s2s     # wait for "Uvicorn running on http://0.0.0.0:8765"
 curl --fail http://localhost:7860/api/health   # {"ready":true,"backend":true,"sdk":true}
@@ -80,23 +79,6 @@ language goes to the LLM prompt and to the TTS handler, which picks
 `voices/pirate_ref.wav`. See
 [voices/README.md](voices/README.md) and, for how the clips were made,
 [docs/VOICE_PIPELINE.md](docs/VOICE_PIPELINE.md).
-
-## Smoke tests
-
-Run inside `s2s`. Outputs go to `artifacts/`.
-
-```bash
-# Text → spoken reply through the whole relay (bypasses STT)
-docker compose exec s2s python scripts/smoke_realtime.py --url ws://ui:7860/api/realtime \
-  --text "Bonjour Painty, où allons-nous aujourd'hui ?" --output /artifacts/text-fr.wav
-
-# Recorded speech (mono 24 kHz PCM16) → reply, exercises STT and language selection
-docker compose exec s2s python scripts/smoke_realtime.py --url ws://ui:7860/api/realtime \
-  --input-audio /artifacts/question-fr.wav --output /artifacts/audio-fr.wav
-```
-
-A valid WAV does not prove pronunciation, speaker similarity or reply language;
-listen to it.
 
 ## Tests and upstream patches
 

@@ -217,27 +217,3 @@ def test_health_probes_real_backend_http(monkeypatch):
         finally:
             upstream.shutdown()
             thread.join(5)
-
-
-def test_smoke_client_protocol_and_wav_writer(tmp_path):
-    import base64
-    from smoke_realtime import smoke
-    async def run():
-        async def fixture(ws):
-            await ws.send(json.dumps({"type": "session.created"}))
-            config = json.loads(await ws.recv())
-            assert config["session"]["audio"]["output"]["format"]["rate"] == 24000
-            await ws.send(json.dumps({"type": "session.updated"}))
-            assert json.loads(await ws.recv())["type"] == "conversation.item.create"
-            assert json.loads(await ws.recv())["type"] == "response.create"
-            await ws.send(json.dumps({"type": "response.output_audio.delta", "delta": base64.b64encode(b'\x00\x01' * 2400).decode()}))
-            await ws.send(json.dumps({"type": "response.output_audio_transcript.delta", "delta": "Fixture only"}))
-            await ws.send(json.dumps({"type": "response.done", "response": {"status": "completed"}}))
-        async with serve(fixture, "127.0.0.1", 0) as ws_server:
-            port = ws_server.sockets[0].getsockname()[1]
-            result = await smoke(f"ws://127.0.0.1:{port}", "test", tmp_path / "smoke.wav", 5)
-            assert result["seconds"] == 0.1
-    asyncio.run(run())
-    with wave.open(str(tmp_path / "smoke.wav")) as wav:
-        assert wav.getframerate() == 24000
-        assert wav.getnframes() == 2400
