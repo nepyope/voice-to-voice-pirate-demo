@@ -40,8 +40,7 @@ def smoke_tts(base_url, text, language, output, env, timeout=180):
     _, stats = read_pcm_wav(audio)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_bytes(audio)
-    result = {"test": "direct_tts", "output": str(output), "voice": env.get("VOICE", "captain"),
-              "completed_at_utc": datetime.now(timezone.utc).isoformat(),
+    result = {"test": "direct_tts", "output": str(output), "completed_at_utc": datetime.now(timezone.utc).isoformat(),
               "language": language, "reference": payload["ref_audio"],
               "reference_sha256": reference["sha256"], "elapsed_seconds": round(elapsed, 3), **stats,
               "quality_review": "Listen to the saved WAV; audio validity does not establish clone quality."}

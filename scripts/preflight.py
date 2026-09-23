@@ -47,9 +47,9 @@ def driver_issues(driver, services):
             warnings.append("Custom TTS image: verify its CUDA/driver and OmniVoice compatibility separately.")
     if "llm" in services:
         image = services["llm"]["image"]
-        if image == "vllm/vllm-openai:v0.30.0-cu129" and major < 575:
-            warnings.append("CUDA 12.9 LLM on a pre-575 driver relies on minor compatibility; PTX/JIT may fail. Validate inference or upgrade.")
-        elif image != "vllm/vllm-openai:v0.30.0-cu129":
+        if image == "vllm/vllm-openai:v0.29.0-cu129" and major < 580:
+            problems.append("The vLLM LLM image fails on pre-580 drivers (Triton: device kernel image is invalid); upgrade to 580+.")
+        elif image != "vllm/vllm-openai:v0.29.0-cu129":
             warnings.append("Custom LLM image: verify its CUDA/driver compatibility separately.")
     return problems, warnings
 
@@ -88,7 +88,7 @@ def check(mode="local", reachy=False, check_images=False):
             env["VOICES_DIR"] = str(ROOT / "voices")
             voice = validate_voice(voice_directory(env))
             langs = Path(voice["audio"]).parent / "langs"
-            checks["voice"] = {"preset": env.get("VOICE", "captain"), "sha256": voice["sha256"],
+            checks["voice"] = {"sha256": voice["sha256"],
                                "language_references": sorted(validate_language_voices(langs)) if langs.exists() else []}
             if not env.get("LLM_BASE_URL") and "llm" in services:
                 errors.append("LLM overlay is active but the backend has no LLM_BASE_URL.")

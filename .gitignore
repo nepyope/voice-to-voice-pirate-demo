@@ -8,9 +8,9 @@ pytest-of-root/
 *.log
 artifacts/
 *.mp3
-# This repo is private: the Captain preset and the Painty references (voices/pirate_ref.*,
-# voices/langs/) are tracked. `scripts/package_demo.py --public` strips the Painty audio.
-voices/candidates/
-voices/previous-generated-captain/
-voices/custom/
-voices/captain-smoke*.wav
+# Only the Painty references are tracked; local scratch and candidates stay out.
+voices/*
+!voices/README.md
+!voices/pirate_ref.wav
+!voices/pirate_ref.txt
+!voices/langs/

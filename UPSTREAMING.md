@@ -50,6 +50,4 @@ voice recordings and `omnivoice-dependencies.patch` out of these feature PRs.
 That dependency workaround belongs to the pinned demo build and needs its own
 upstream dependency review if still relevant.
 
-No repository was pushed and no PR was opened. The reviewable diffs and proposed
-PR scope are complete; repository ownership and submission destination remain
-for Andi/the project owner to choose.
+No upstream PR has been opened yet.

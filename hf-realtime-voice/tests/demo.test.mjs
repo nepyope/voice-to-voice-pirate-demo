@@ -6,7 +6,7 @@ import { buildDirectWsUrl } from '../ws/connection-url.js';
 import { base64FromArrayBuffer, base64ToBytes, extractResponseTranscript } from '../ws/codec.js';
 
 test('same-origin proxy uses the browser host and TLS scheme', () => {
-  assert.equal(buildDirectWsUrl('/api/realtime', 'https://captain.example:8443/'), 'wss://captain.example:8443/api/realtime');
+  assert.equal(buildDirectWsUrl('/api/realtime', 'https://pirate.example:8443/'), 'wss://pirate.example:8443/api/realtime');
   assert.equal(buildDirectWsUrl('/api/realtime', 'http://localhost:7860/'), 'ws://localhost:7860/api/realtime');
 });
 test('direct URL preserves path and query, bare host gets realtime path', () => {

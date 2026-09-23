@@ -1,8 +1,0 @@
-{
-  "main_commit": "a6576590f2a63f0d7c090e306422d86e0e1756ce",
-  "pinned_runtime_commit": "ca5c33c9bb5e381288d315d1f8da122613845c4c",
-  "patches_applied_cleanly": true,
-  "git_diff_check": "passed",
-  "changed_upstream_files_identical_to_runtime_pin": true,
-  "pull_requests_opened": false
-}

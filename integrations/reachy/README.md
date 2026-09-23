@@ -1,4 +1,4 @@
-# Connect the Captain to Reachy Mini
+# Connect Painty to Reachy Mini
 
 This package uses the existing Reachy Mini conversation app as its audio client.
 Connection keys and native profile parsing were checked against app commit
@@ -38,13 +38,13 @@ Alternatively, set `REALTIME_BIND` in the GPU demo's `.env` to its trusted LAN I
 and use that address in the client URL. Plain WebSocket is suitable only for the
 trusted local/tunnel arrangement; this overlay does not add authentication.
 
-## Load the Captain personality
+## Load the Painty personality
 
 With the robot daemon and conversation app installed, copy this folder to the
 machine that runs the conversation app. Add the entries in `reachy.env.example`
 to **that app's** `.env`, setting the profiles directory to its actual absolute
 path. Do not overwrite an existing app `.env` wholesale. The example chooses
-local connection mode and the Captain profile.
+local connection mode and the Painty profile.
 
 Start the conversation app:
 
@@ -52,14 +52,14 @@ Start the conversation app:
 reachy-mini-conversation-app --no-camera
 ```
 
-If using its UI, select the Captain personality and the local connection in
+If using its UI, select the Painty personality and the local connection in
 Settings. Saved UI selections can override the environment's profile fallback.
 Its UI also uses port 7860 by default; use the console client or a separate
 machine if the demo UI already occupies that port.
 
 The profile has an empty `default_tools` list. Reset any saved per-profile tool
 override before an audio-only run. It uses the same language-following prompt as
-the browser. The speaker is selected by `VOICE` on the GPU server. Reachy's UI
+the browser. The voice comes from `voices/` on the GPU server. Reachy's UI
 still lists Qwen speakers; the patched remote handler retains the configured
 clone instead of forwarding an unrelated client preset. Local OmniVoice already
 uses its configured clone. The app may send its normal startup greeting; test
@@ -71,13 +71,13 @@ From the client machine, using this demo's Python test dependencies:
 
 ```bash
 python scripts/smoke_realtime.py --url ws://127.0.0.1:8765/v1/realtime \
-  --text "Captain, tell me where our next adventure will take us." \
+  --text "Painty, tell me where our next adventure will take us." \
   --output artifacts/reachy-endpoint.wav
 ```
 
 This tests the robot-facing endpoint, not the robot's microphone or speaker.
-Then start the actual app and run the listening checks in `VALIDATION.md`:
-English → French → German, interrupt a reply, disconnect and reconnect. Record
+Then start the actual app and check by ear: English → French → German,
+interrupt a reply, disconnect and reconnect. Record
 speaker quality and playback behavior. The browser and robot share the same
 single pipeline unless `NUM_PIPELINES` is increased; stop one before starting
 the other. Robot movement and tool calling have not been implemented or tested.

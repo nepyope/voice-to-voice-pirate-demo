@@ -15,7 +15,7 @@ from launch_backend import build_command
 from preflight import compose_command, driver_issues
 from smoke_realtime import smoke
 from smoke_tts import smoke_tts
-from voice_files import remote_audio_uri, validate_voice, voice_directory
+from voice_files import remote_audio_uri, validate_language_voices, validate_voice, voice_directory
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -28,39 +28,25 @@ def wav_bytes(pcm=b"\x00\x01" * 2400):
     return out.getvalue()
 
 
-def test_default_speaker_is_original_and_does_not_load_painty_languages():
+def test_painty_loads_all_language_references_in_both_modes():
     env = {"VOICES_DIR": str(ROOT / "voices")}
-    directory = voice_directory(env)
-    voice = validate_voice(directory)
-    assert directory.name == "captain"
-    assert voice["sha256"] == "20af87e41ae12f6dabfbbd3756e7d3cb5a4ca05ecfe51de7692dd5f5ea3397cf"
-    for mode in ("local", "remote"):
-        command = build_command({**env, "TTS_MODE": mode}, voice, "Captain")
-        assert not any("ref_voices_dir" in arg for arg in command)
-        if mode == "remote":
-            assert "file:///voices/captain/pirate_ref.wav" in command
-
-
-def test_painty_loads_all_supplied_languages_in_both_modes():
-    if not (ROOT / "voices/pirate_ref.wav").exists():
-        pytest.skip("Optional private Painty assets are excluded from the public export")
-    env = {"VOICE": "painty", "VOICES_DIR": str(ROOT / "voices")}
     voice = validate_voice(voice_directory(env))
+    assert len(validate_language_voices(ROOT / "voices/langs")) == 30
     for mode, prefix in (("local", "omnivoice"), ("remote", "openai_tts")):
-        command = build_command({**env, "TTS_MODE": mode}, voice, "Captain")
+        command = build_command({**env, "TTS_MODE": mode}, voice, "Painty")
         assert f"--{prefix}_ref_voices_dir" in command
+        if mode == "remote":
+            assert "file:///voices/pirate_ref.wav" in command
 
 
-def test_custom_missing_and_unknown_presets_fail(tmp_path):
+def test_missing_reference_fails(tmp_path):
     with pytest.raises(ValueError):
-        validate_voice(voice_directory({"VOICE": "custom", "VOICES_DIR": str(tmp_path)}))
-    with pytest.raises(ValueError):
-        voice_directory({"VOICE": "../captain"})
+        validate_voice(voice_directory({"VOICES_DIR": str(tmp_path)}))
 
 
 def test_remote_mount_mapping_encodes_paths_and_rejects_escape(tmp_path):
     env = {"VOICES_DIR": str(tmp_path), "TTS_VOICES_DIR": "/media/voices"}
-    assert remote_audio_uri(tmp_path / "custom/my voice.wav", env) == "file:///media/voices/custom/my%20voice.wav"
+    assert remote_audio_uri(tmp_path / "langs/my voice.wav", env) == "file:///media/voices/langs/my%20voice.wav"
     with pytest.raises(ValueError, match="inside"):
         remote_audio_uri(tmp_path.parent / "escape.wav", env)
 
@@ -70,7 +56,8 @@ def test_preflight_detects_cuda13_blocker_without_rejecting_local_mode():
     assert driver_issues("570.211", services)[0]
     assert not driver_issues("580.178", services)[0]
     assert not driver_issues("570.211", {})[0]
-    assert not driver_issues("580.178", {"llm": {"image": "vllm/vllm-openai:v0.30.0-cu129"}})[0]
+    assert driver_issues("570.211", {"llm": {"image": "vllm/vllm-openai:v0.29.0-cu129"}})[0]
+    assert not driver_issues("580.178", {"llm": {"image": "vllm/vllm-openai:v0.29.0-cu129"}})[0]
 
 
 def test_combined_overlays_have_an_unambiguous_order():
@@ -79,8 +66,8 @@ def test_combined_overlays_have_an_unambiguous_order():
 
 
 def test_direct_tts_request_and_wav_validation(tmp_path):
-    directory = tmp_path / "captain"
-    (directory / "langs").mkdir(parents=True)
+    directory = tmp_path
+    (directory / "langs").mkdir()
     directory.joinpath("pirate_ref.wav").write_bytes(wav_bytes(b"\x00\x01" * 96000))
     directory.joinpath("pirate_ref.txt").write_text("Welcome aboard")
     directory.joinpath("langs/fr.wav").write_bytes(wav_bytes(b"\x00\x02" * 96000))
@@ -104,7 +91,7 @@ def test_direct_tts_request_and_wav_validation(tmp_path):
         finally:
             server.shutdown()
             thread.join(5)
-    assert requests[0]["ref_audio"] == "file:///voices/captain/langs/fr.wav"
+    assert requests[0]["ref_audio"] == "file:///voices/langs/fr.wav"
     assert requests[0]["ref_text"] == "Bonjour capitaine"
     assert requests[0]["language"] == "fr-CA"
     assert "stream" not in requests[0]

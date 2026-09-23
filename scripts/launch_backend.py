@@ -71,6 +71,6 @@ if __name__ == "__main__":
         languages = sorted(validate_language_voices(Path(voice["audio"]).parent / "langs")) \
             if (Path(voice["audio"]).parent / "langs").is_dir() else []
         print(f"Starting {os.environ.get('TTS_MODE', 'local')} TTS; "
-              f"voice={os.environ.get('VOICE', 'captain')} reference {voice['sha256']}; "
+              f"reference {voice['sha256']}; "
               f"per-language voices: {', '.join(languages) or 'none'}", flush=True)
         os.execvp(command[0], command)

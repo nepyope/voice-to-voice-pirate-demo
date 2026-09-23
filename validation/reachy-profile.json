@@ -1,7 +1,0 @@
-{
-  "conversation_app_commit": "b9f58a3587d79a3275d4402d1a8d210649d62d50",
-  "native_profile_parser": "passed",
-  "voice_override": "omitted; server-selected clone takes precedence",
-  "enabled_tools": [],
-  "physical_robot_tested": false
-}

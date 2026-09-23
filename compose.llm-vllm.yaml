@@ -1,7 +1,7 @@
 # Add to either local TTS or compose.vllm.yaml. No host port is exposed.
 services:
   llm:
-    image: ${VLLM_LLM_IMAGE:-vllm/vllm-openai:v0.30.0-cu129}
+    image: ${VLLM_LLM_IMAGE:-vllm/vllm-openai:v0.29.0-cu129}
     gpus: [{driver: nvidia, count: all}]
     ipc: host
     init: true
@@ -25,9 +25,6 @@ services:
     # datacenter GPUs; on GeForce they cause "Error 804". Hide them so the host driver is used.
     tmpfs:
       - /usr/local/cuda/compat
-    depends_on:
-      voice-init:
-        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
       interval: 15s

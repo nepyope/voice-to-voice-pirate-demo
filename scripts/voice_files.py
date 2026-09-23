@@ -6,12 +6,7 @@ from pathlib import Path
 
 
 def voice_directory(env) -> Path:
-    """Keep each speaker's default and language references in one namespace."""
-    root = Path(env.get("VOICES_DIR", "/voices"))
-    preset = env.get("VOICE", "captain")
-    if preset not in {"captain", "painty", "custom"}:
-        raise ValueError("VOICE must be captain, painty, or custom")
-    return root if preset == "painty" else root / preset
+    return Path(env.get("VOICES_DIR", "/voices"))
 
 
 def remote_audio_uri(audio: Path, env) -> str:
@@ -41,7 +36,7 @@ def reference_for_language(default: dict, references: dict, language: str | None
 
 def validate_voice(directory: Path) -> dict:
     return _validate_pair(directory / "pirate_ref.wav", directory / "pirate_ref.txt",
-                          "Provide both voices/pirate_ref.wav and voices/pirate_ref.txt, or run voice-init")
+                          "Provide both voices/pirate_ref.wav and voices/pirate_ref.txt")
 
 
 def validate_language_voices(directory: Path) -> dict:

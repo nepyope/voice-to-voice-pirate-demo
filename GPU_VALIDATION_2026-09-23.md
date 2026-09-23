@@ -1,7 +1,7 @@
 # GPU validation run — 2026-09-23 evening
 
 Host: RTX 5090 Laptop 24 GB, driver **580.178.04 / CUDA 13.0** (upgraded from 570 today),
-Docker 29 / Compose v5, Ubuntu 22.04, kernel 6.8.0-138. Voice preset: `VOICE=painty`.
+Docker 29 / Compose v5, Ubuntu 22.04, kernel 6.8.0-138. Voice: Painty with per-language references.
 Artifacts (WAV + JSON) in `artifacts/`.
 
 ## Results

@@ -7,7 +7,7 @@ recipe to rebuild them. `voices/langs/manifest.json` holds the exact result: per
 the block index, the source time spans in the separated-vocals track, and the transcript.
 
 Everything ran on the RTX 5090 laptop. GPU steps ran inside the demo's backend image
-(`docker compose run --rm --no-deps -v /tmp/work:/work voice-init …`) because it already has
+(`docker compose run --rm --no-deps -v /tmp/work:/work s2s …`) because it already has
 CUDA PyTorch; CPU steps ran in a throwaway `uv venv` with `faster-whisper soundfile numpy scipy`.
 
 ## Inputs
@@ -18,8 +18,8 @@ CUDA PyTorch; CPU steps ran in a throwaway `uv venv` with `faster-whisper soundf
 | `SpongeBob Theme Song in 27 Different Languages! 🌎 SpongeBob.mp3` | 29 dubs back to back (the title says 27) | ~20 min |
 
 Both were downloaded from YouTube by the user (the official Nickelodeon uploads are geo-blocked
-for `yt-dlp` from Austria). They are Nickelodeon IP: internal demo use only, never in a public
-package (`scripts/package_demo.py --public` strips everything derived from them).
+for `yt-dlp` from Austria). They are Nickelodeon IP: internal demo use only, which is why this
+repository is private.
 
 ## Target format
 
@@ -93,7 +93,7 @@ sf.write("pirate_ref.wav", y, 24000, subtype="PCM_16")
 open("pirate_ref.txt", "w").write(" ".join(t for *_, t in lines) + "\n")
 ```
 
-Result: 16.54 s, sha256 `b90cd394…` (the `painty` preset's default).
+Result: 16.54 s, sha256 `b90cd394…` (the fallback for languages without their own clip).
 
 ## Step 4 (dubs) — locate the 29 language blocks
 
@@ -196,8 +196,7 @@ missing `.txt` fails the launch rather than silently skipping the language.
 3. Whisper with word timestamps; pick spans of only that speaker.
 4. Splice with the snippet above; type the transcript by hand — it is worth the two minutes,
    whisper's lyrics are the weakest part of the current clips.
-5. Drop `pirate_ref.wav` + `.txt` into `voices/custom/` (and `voices/custom/langs/` for
-   per-language clips), set `VOICE=custom`, restart `s2s`.
+5. Replace `voices/pirate_ref.wav` + `.txt` (and `voices/langs/` for per-language clips),
+   restart `s2s`.
 
-Voice cloning of a real person or a copyrighted character needs the relevant consent/rights;
-the shipped `captain` preset is an OmniVoice voice-*design* output for exactly that reason.
+Voice cloning of a real person or a copyrighted character needs the relevant consent/rights.

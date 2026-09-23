@@ -150,7 +150,7 @@ def test_language_reference_used_by_real_process_path(handler, tmp_path):
 
 def test_configured_clone_takes_precedence_over_reachy_preset(handler):
     obj, _ = handler
-    obj.setup(Event(), voice="default", ref_audio="file:///voices/captain/pirate_ref.wav", ref_text="Ahoy")
+    obj.setup(Event(), voice="default", ref_audio="file:///voices/pirate_ref.wav", ref_text="Ahoy")
     runtime = SimpleNamespace(session=SimpleNamespace(audio=SimpleNamespace(output=SimpleNamespace(voice="Aiden"))))
     assert obj._resolve_voice(runtime, None) == "default"
     obj.setup(Event(), voice="default")  # Preserve upstream behavior when cloning is not configured.

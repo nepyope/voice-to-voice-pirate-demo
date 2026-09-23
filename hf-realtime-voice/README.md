@@ -1,4 +1,4 @@
-# Captain UI server
+# Painty UI server
 
 Start from the [project README](../README.md). The complete stack uses Compose.
 
@@ -10,4 +10,3 @@ the same-origin `/api/realtime` relay. WebRTC is not offered in this package.
 
 `npm test` runs the JavaScript checks. Python integration checks live in the
 parent `tests/` directory. `DESIGN.md` describes the retained UI conventions.
-The original generic UI README is preserved under `../reference/`.

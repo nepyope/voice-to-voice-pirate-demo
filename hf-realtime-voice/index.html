@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Captain · Pirate voice demo</title>
+    <title>Painty · Pirate voice demo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -25,12 +25,12 @@
         <div class="brand">
           <div class="ident">
             <div class="ident-head">
-              <a class="ident-title" href="https://github.com/huggingface/speech-to-speech" target="_blank" rel="noopener">Captain · Pirate voice</a>
+              <a class="ident-title" href="https://github.com/huggingface/speech-to-speech" target="_blank" rel="noopener">Painty · Pirate voice</a>
               <button id="about-btn" class="about-btn" title="About this space" aria-label="About this space">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
               </button>
             </div>
-            <p class="ident-blurb">One captain. Many languages. Speak naturally; the Captain replies in yours.</p>
+            <p class="ident-blurb">One pirate. Many languages. Speak naturally; Painty replies in yours.</p>
             <div class="ident-meta">
               <span class="ident-row">
                 <span class="ident-label">Powered by</span>
@@ -185,7 +185,7 @@
 
         <!-- General intro to the speech-to-speech project -->
         <div class="about-intro">
-          <p>Captain listens, transcribes your speech, and answers in character in the language of your latest message. OmniVoice reuses one reference voice across languages. Speech detection finds speech and silence; it does not identify speakers.</p>
+          <p>Painty listens, transcribes your speech, and answers in character in the language of your latest message. OmniVoice clones his voice from a per-language reference clip. Speech detection finds speech and silence; it does not identify speakers.</p>
           <a class="about-repo" href="https://github.com/huggingface/speech-to-speech" target="_blank" rel="noopener">View the project on GitHub<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
         </div>
 
@@ -211,10 +211,10 @@
             </li>
             <li class="pipe-stage">
               <span class="pipe-tag">TTS</span>
-              <span class="pipe-job">speaks with the saved Captain voice</span>
+              <span class="pipe-job">speaks with the cloned Painty voice</span>
               <a class="pipe-model" href="https://huggingface.co/k2-fsa/OmniVoice" target="_blank" rel="noopener">k2-fsa/OmniVoice<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
             </li>
-            <li class="pipe-endpoint">The Captain replies</li>
+            <li class="pipe-endpoint">Painty replies</li>
           </ol>
         </div>
       </div>
@@ -258,8 +258,8 @@
             <div class="field-row">
               <label class="field">
                 <span>Voice</span>
-                <select id="voice" disabled aria-describedby="voice-hint"><option value="default" selected>Captain</option></select>
-                <small id="voice-hint">One saved reference voice for every language.</small>
+                <select id="voice" disabled aria-describedby="voice-hint"><option value="default" selected>Painty</option></select>
+                <small id="voice-hint">Cloned per language from Painty's dub clips.</small>
               </label>
             </div>
 
@@ -314,7 +314,7 @@
 
             <label class="field">
               <span>Instructions</span>
-              <textarea id="instructions" rows="5" placeholder="Captain replies in the language you speak..."></textarea>
+              <textarea id="instructions" rows="5" placeholder="Painty replies in the language you speak..."></textarea>
             </label>
 
             <div class="field">

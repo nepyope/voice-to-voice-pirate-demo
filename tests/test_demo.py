@@ -13,7 +13,6 @@ from websockets.asyncio.server import serve
 
 import server
 from launch_backend import build_command
-from prepare_voice import prepare
 from realtime_proxy import relay
 from voice_files import validate_voice
 
@@ -29,13 +28,6 @@ def voice(tmp_path):
         wav.writeframes(struct.pack("<h", 1000) * 96000)
     (tmp_path / "pirate_ref.txt").write_text("Welcome aboard, matey!", encoding="utf-8")
     return tmp_path
-
-
-def test_existing_voice_is_preserved_without_loading_model(voice):
-    before = (voice / "pirate_ref.wav").read_bytes()
-    details = prepare(voice)
-    assert details["seconds"] == 4
-    assert (voice / "pirate_ref.wav").read_bytes() == before
 
 
 @pytest.mark.parametrize("problem", ["missing_text", "empty_text", "stereo", "wrong_rate", "too_short", "silent"])
@@ -75,23 +67,23 @@ def test_launch_preserves_language_and_clone_contract(voice, mode):
 
 
 def test_per_language_voices_are_passed_only_when_present_and_valid(voice):
-    command = build_command({"TTS_MODE": "local"}, validate_voice(voice), "Captain")
+    command = build_command({"TTS_MODE": "local"}, validate_voice(voice), "Painty")
     assert "--omnivoice_ref_voices_dir" not in command  # no voices/langs directory
     langs = voice / "langs"
     langs.mkdir()
     shutil.copy(voice / "pirate_ref.wav", langs / "fr.wav")
     (langs / "fr.txt").write_text("Prêts les enfants ?", encoding="utf-8")
-    command = build_command({"TTS_MODE": "local"}, validate_voice(voice), "Captain")
+    command = build_command({"TTS_MODE": "local"}, validate_voice(voice), "Painty")
     args = dict(zip(command[2::2], command[3::2]))
     assert args["--omnivoice_ref_voices_dir"] == str(langs)
     assert args["--omnivoice_ref_audio"] == str(voice / "pirate_ref.wav")  # default stays as fallback
     (langs / "fr.txt").unlink()  # a clip without its transcript must fail loudly, not be skipped
     with pytest.raises(ValueError, match="fr.wav"):
-        build_command({"TTS_MODE": "local"}, validate_voice(voice), "Captain")
+        build_command({"TTS_MODE": "local"}, validate_voice(voice), "Painty")
     with pytest.raises(ValueError, match="fr.wav"):
-        build_command({"TTS_MODE": "remote", "VOICES_DIR": str(voice)}, validate_voice(voice), "Captain")
+        build_command({"TTS_MODE": "remote", "VOICES_DIR": str(voice)}, validate_voice(voice), "Painty")
     (langs / "fr.txt").write_text("Prêts les enfants ?", encoding="utf-8")
-    remote = build_command({"TTS_MODE": "remote", "VOICES_DIR": str(voice)}, validate_voice(voice), "Captain")
+    remote = build_command({"TTS_MODE": "remote", "VOICES_DIR": str(voice)}, validate_voice(voice), "Painty")
     args = dict(zip(remote[2::2], remote[3::2]))
     assert args["--openai_tts_ref_voices_dir"] == str(langs)
     assert args["--openai_tts_ref_voices_base_url"] == "file:///voices/langs"
@@ -100,9 +92,9 @@ def test_per_language_voices_are_passed_only_when_present_and_valid(voice):
 def test_remote_llm_requires_model_and_keeps_key_out_of_argv(voice):
     details = validate_voice(voice)
     with pytest.raises(ValueError):
-        build_command({"LLM_BASE_URL": "https://example.com/v1"}, details, "Captain")
+        build_command({"LLM_BASE_URL": "https://example.com/v1"}, details, "Painty")
     command = build_command({"LLM_BASE_URL": "https://example.com/v1", "LLM_MODEL": "test-model",
-                             "OPENAI_API_KEY": "test-secret"}, details, "Captain")
+                             "OPENAI_API_KEY": "test-secret"}, details, "Painty")
     assert "chat-completions" in command
     assert "test-secret" not in command
 
@@ -179,7 +171,7 @@ def test_websocket_relays_json_binary_and_releases_session(upstream):
         with client.websocket_connect("/api/realtime", headers={"origin": "http://testserver"}) as ws:
             assert ws.receive_json()["type"] == "session.created"
             for event in [
-                {"type": "session.update", "session": {"instructions": "Captain", "audio": {"output": {"voice": "default"}}}},
+                {"type": "session.update", "session": {"instructions": "Painty", "audio": {"output": {"voice": "default"}}}},
                 {"type": "input_audio_buffer.append", "audio": "AACAAA=="},
                 {"type": "response.cancel"},
             ]:
@@ -217,7 +209,7 @@ def test_launch_flags_belong_to_selected_pinned_backends(voice, mode, remote_llm
     env = {"TTS_MODE": mode, "VOICES_DIR": str(voice)}
     if remote_llm:
         env.update(LLM_BASE_URL="https://example.com/v1", LLM_MODEL="test-model")
-    command = build_command(env, validate_voice(voice), "Captain")
+    command = build_command(env, validate_voice(voice), "Painty")
     assert set(command[2::2]) <= allowed
 
 

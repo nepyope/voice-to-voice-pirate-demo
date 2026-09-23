@@ -1,41 +1,27 @@
 name: pirate-voice
-# Only `s2s` carries the `build:` section; `voice-init` reuses the same image.
-# Declaring `build:` on both makes Compose (bake) build and tag the image twice
-# in parallel, which fails with `image ... already exists`.
-x-backend: &backend
-  image: pirate-voice-backend:local
-  gpus: [{driver: nvidia, count: all}]
-  volumes:
-    - ./voices:/voices
-    - hf-cache:/cache/huggingface
-    - torch-cache:/cache/torch
-    - ./artifacts:/artifacts
-  environment: &backend-env
-    HF_TOKEN: ${HF_TOKEN:-}
-    TORCH_HOME: /cache/torch
-    VOICE: ${VOICE:-captain}
-    NUM_PIPELINES: ${NUM_PIPELINES:-1}
-    TTS_MODEL: k2-fsa/OmniVoice
-    LLM_MODEL: ${LLM_MODEL:-Qwen/Qwen3-4B-Instruct-2507}
-    LLM_BASE_URL: ${LLM_BASE_URL:-}
-    OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-    HF_HUB_DISABLE_TELEMETRY: "1"
 services:
-  voice-init:
-    <<: *backend
-    command: ["python", "scripts/prepare_voice.py"]
   s2s:
-    <<: *backend
+    image: pirate-voice-backend:local
     build:
       context: .
       dockerfile: Dockerfile.backend
+    gpus: [{driver: nvidia, count: all}]
     init: true
-    depends_on:
-      voice-init:
-        condition: service_completed_successfully
+    volumes:
+      - ./voices:/voices:ro
+      - hf-cache:/cache/huggingface
+      - torch-cache:/cache/torch
+      - ./artifacts:/artifacts
     environment:
-      <<: *backend-env
+      HF_TOKEN: ${HF_TOKEN:-}
+      TORCH_HOME: /cache/torch
+      NUM_PIPELINES: ${NUM_PIPELINES:-1}
       TTS_MODE: local
+      TTS_MODEL: k2-fsa/OmniVoice
+      LLM_MODEL: ${LLM_MODEL:-Qwen/Qwen3-4B-Instruct-2507}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      HF_HUB_DISABLE_TELEMETRY: "1"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/v1/pool', timeout=3)"]
       interval: 15s

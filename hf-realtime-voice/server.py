@@ -1,4 +1,4 @@
-"""Captain's UI server and fixed-target realtime WebSocket relay.
+"""Painty's UI server and fixed-target realtime WebSocket relay.
 
 SPEECH_TO_SPEECH_URL is the server-side backend address. The browser receives
 /api/realtime and uses its own host and TLS scheme. The inherited optional
@@ -126,7 +126,7 @@ with open(os.path.join(HERE, "pirate.json"), encoding="utf-8") as f:
 if SPEECH_TO_SPEECH_URL:
     pool_url(SPEECH_TO_SPEECH_URL)  # Validate deployment config at startup.
 
-app = FastAPI(title="Captain voice demo")
+app = FastAPI(title="Painty voice demo")
 
 
 @app.websocket("/api/realtime")

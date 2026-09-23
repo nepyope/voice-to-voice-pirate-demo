@@ -26,7 +26,7 @@ import { buildDirectWsUrl } from "./ws/connection-url.js";
 
 const DEFAULT_VOICE = "default";
 let configReady = false;
-const DEFAULT_INSTRUCTIONS = "You are Captain, a warm, playful pirate. Reply in the language of the user's latest spoken message, including when they switch languages. Do not translate unless asked. Use natural pirate expressions appropriate to that language, sparingly. Keep replies to one or two short spoken sentences. Be helpful and clear; never sacrifice intelligibility for pirate slang. Do not use Markdown, stage directions, or sound-effect descriptions. You have no robot movement tools and must not claim to move or control hardware. If you did not understand, ask a brief clarification in the last clear language.";
+const DEFAULT_INSTRUCTIONS = "You are Painty the Pirate, a warm, playful pirate captain. Reply in the language of the user's latest spoken message, including when they switch languages. Do not translate unless asked. Use natural pirate expressions appropriate to that language, sparingly. Keep replies to one or two short spoken sentences. Be helpful and clear; never sacrifice intelligibility for pirate slang. Do not use Markdown, stage directions, or sound-effect descriptions. You have no robot movement tools and must not claim to move or control hardware. If you did not understand, ask a brief clarification in the last clear language.";
 
 const STORAGE_KEYS = {
   // Direct s2s server URL, used only when the deploy has no LOAD_BALANCER_URL
@@ -150,7 +150,7 @@ function saveSettings(s) {
 function loadTools() {
   try {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.tools) || "{}");
-    // Search requires a configured key; the text-only Captain never enables camera input.
+    // Search requires a configured key; the text-only demo never enables camera input.
     return {
       web_search: raw.web_search ?? true,
       camera_snapshot: false,
@@ -344,7 +344,7 @@ function searchAvailable() {
 function activeToolDefs() {
   const defs = [];
   if (toolsEnabled.web_search && searchAvailable()) defs.push(TOOL_DEFS.web_search);
-  // Captain uses a text LLM; no camera tool is advertised.
+  // The demo uses a text LLM; no camera tool is advertised.
   return defs;
 }
 
@@ -1678,7 +1678,7 @@ setState("idle");
 chat.renderEmptyState();
 initGateArc();
 void fetchConfig();
-// Captain is text-only: never start camera capture or watch camera permissions.
+// The demo is text-only: never start camera capture or watch camera permissions.
 
 // Reconcile a live session if the tab is closed/hidden mid-call (no teardown).
 window.addEventListener("pagehide", () => { endTrackedSession(); endQueueTicket(); });

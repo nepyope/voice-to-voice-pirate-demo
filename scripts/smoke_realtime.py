@@ -123,7 +123,7 @@ if __name__ == "__main__":
     source = parser.add_mutually_exclusive_group()
     source.add_argument("--text")
     source.add_argument("--input-audio", type=Path, help="Mono PCM16 24 kHz WAV, at most 60 seconds")
-    parser.add_argument("--output", type=Path, default=Path("artifacts/captain-smoke.wav"))
+    parser.add_argument("--output", type=Path, default=Path("artifacts/smoke.wav"))
     parser.add_argument("--timeout", type=float, default=180)
     args = parser.parse_args()
     text = args.text or (None if args.input_audio else "Bonjour capitaine, où allons-nous aujourd'hui ?")
