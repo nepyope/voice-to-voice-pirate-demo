@@ -10,7 +10,7 @@ import pytest
 from websockets.asyncio.server import serve
 
 from launch_backend import build_command
-from preflight import compose_command, driver_issues
+from preflight import driver_issues
 from smoke_realtime import smoke
 from voice_files import validate_language_voices, validate_voice, voice_directory
 
@@ -29,7 +29,8 @@ def test_painty_loads_all_language_references():
     env = {"VOICES_DIR": str(ROOT / "voices")}
     voice = validate_voice(voice_directory(env))
     assert len(validate_language_voices(ROOT / "voices/langs")) == 29
-    assert "--omnivoice_ref_voices_dir" in build_command(env, voice, "Painty")
+    command = build_command({**env, "LLM_BASE_URL": "http://llm:8000/v1", "LLM_MODEL": "m"}, voice, "Painty")
+    assert "--omnivoice_ref_voices_dir" in command
 
 
 def test_missing_reference_fails(tmp_path):
@@ -37,15 +38,10 @@ def test_missing_reference_fails(tmp_path):
         validate_voice(voice_directory({"VOICES_DIR": str(tmp_path)}))
 
 
-def test_preflight_detects_driver_blocker_without_rejecting_local_mode():
-    assert not driver_issues("570.211", {})[0]
-    assert driver_issues("570.211", {"llm": {"image": "vllm/vllm-openai:v0.29.0-cu129"}})[0]
-    assert not driver_issues("580.178", {"llm": {"image": "vllm/vllm-openai:v0.29.0-cu129"}})[0]
-
-
-def test_combined_overlays_have_an_unambiguous_order():
-    assert compose_command("vllm-llm", reachy=True) == ["docker", "compose", "-f", "compose.yaml",
-        "-f", "compose.llm-vllm.yaml", "-f", "compose.reachy.yaml"]
+def test_preflight_requires_driver_580():
+    assert driver_issues("570.211")[0]
+    assert not driver_issues("580.178")[0]
+    assert driver_issues("580.178", "vllm/vllm-openai:custom")[1]
 
 
 def test_audio_smoke_sends_pcm_and_waits_for_stt_and_vad(tmp_path):

@@ -22,17 +22,11 @@ def build_command(env, voice, instructions):
         "--parakeet_tdt_device", "cuda", "--enable_live_transcription", "true",
         "--enable_lang_prompt", "true", "--stream_batch_sentences", "1",
         "--init_chat_prompt", instructions, "--num_pipelines", str(pipelines)]
-    if env.get("LLM_BASE_URL", "").strip():
-        if not env.get("LLM_MODEL", "").strip():
-            raise ValueError("Set LLM_MODEL explicitly when using LLM_BASE_URL")
-        command += ["--llm_backend", "chat-completions", "--responses_api_base_url", env["LLM_BASE_URL"],
-                    "--model_name", env["LLM_MODEL"]]
-        # The provider key stays in OPENAI_API_KEY, not in command logs.
-    else:
-        command += ["--llm_backend", "transformers", "--model_name",
-                    env.get("LLM_MODEL") or "Qwen/Qwen3-4B-Instruct-2507",
-                    "--llm_device", "cuda", "--llm_torch_dtype", "float16",
-                    "--llm_gen_max_new_tokens", "160"]
+    if not env.get("LLM_BASE_URL", "").strip() or not env.get("LLM_MODEL", "").strip():
+        raise ValueError("Set LLM_BASE_URL and LLM_MODEL to the vLLM server")
+    command += ["--llm_backend", "chat-completions", "--responses_api_base_url", env["LLM_BASE_URL"],
+                "--model_name", env["LLM_MODEL"]]
+    # The API key stays in OPENAI_API_KEY, not in command logs.
     command += ["--tts", "omnivoice", "--omnivoice_model_name", env.get("TTS_MODEL", "k2-fsa/OmniVoice"),
                 "--omnivoice_device", "cuda", "--omnivoice_dtype", "float16",
                 "--omnivoice_ref_audio", voice["audio"], "--omnivoice_ref_text", voice["text"],

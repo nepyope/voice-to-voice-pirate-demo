@@ -1,17 +1,22 @@
 # Painty — multilingual pirate voice demo
 
-Speak to a browser (or a Reachy Mini) in any of 25 European languages; Painty the
-Pirate answers in the same language, in his own cloned voice.
+Speak to a browser in any of 25 European languages; Painty the Pirate answers in
+the same language, in his own cloned voice.
 
 Pipeline, built on Hugging Face [`speech-to-speech`](https://github.com/huggingface/speech-to-speech):
 Silero VAD + Smart Turn → Parakeet-TDT 0.6B v3 (transcript + language) →
-Qwen3-4B-Instruct (short pirate reply) → OmniVoice (voice cloned from the
-reference clip for that language). The LLM runs in-process or on vLLM.
+Qwen3-4B-Instruct on vLLM (short pirate reply) → OmniVoice (voice cloned from the
+reference clip for that language).
 
-**Status (2026-09-23):** all three inference modes run end-to-end on an RTX 5090
-Laptop (24 GB, driver 580). Numbers, fixes and caveats are in
-[GPU_VALIDATION_2026-09-23.md](GPU_VALIDATION_2026-09-23.md). Not yet done: a
-by-ear pass over all 30 voices (English + 29 dubs) and a run on a physical Reachy Mini.
+| Container | Runs |
+| --- | --- |
+| `llm` | Qwen3-4B-Instruct on `vllm/vllm-openai:v0.29.0-cu129` |
+| `s2s` | VAD, Parakeet, OmniVoice and the Realtime WebSocket server |
+| `ui` | Browser UI on port 7860, relays to `s2s` |
+
+**Status (2026-09-23):** runs end-to-end on an RTX 5090 Laptop (24 GB, driver 580):
+~2 s from a text request to first audio (plus ~0.5–0.8 s of turn detection), 20 GB
+VRAM. Not yet done: a by-ear pass over all 30 voices (English + 29 dubs).
 
 The voice is cut from Nickelodeon's SpongeBob theme song; keep this repo private.
 
@@ -20,38 +25,42 @@ The voice is cut from Nickelodeon's SpongeBob theme song; keep this repo private
 Requirements:
 
 - Linux x86_64 with an NVIDIA GPU, **≥ 20 GB VRAM** (24 GB tested).
-- NVIDIA driver **≥ 570** for the in-process mode, **≥ 580** for either vLLM
-  overlay (on 570 vLLM fails with `Triton Error: device kernel image is invalid`).
+- NVIDIA driver **≥ 580** (on 570 vLLM fails with `Triton Error: device kernel image is invalid`).
   On Ubuntu 22.04 with the NVIDIA apt repo:
   `sudo apt purge '*nvidia*570*' && sudo apt install nvidia-driver-580-open`, then reboot.
 - Docker Engine 24+ with Compose v2.30+ and the
   [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
   (`docker run --rm --gpus all nvidia/cuda:12.8.0-base-ubuntu24.04 nvidia-smi -L` must list your GPU).
-- ~30 GB free disk: backend image 14 GB, vLLM images 9–19 GB each, model cache ~12 GB.
+- ~40 GB free disk: backend image 14 GB, vLLM image ~19 GB, model cache ~12 GB.
 - Internet on first start (model downloads from the Hub, silero-vad from GitHub).
 
 ```bash
 git clone git@github.com:nepyope/voice-to-voice-pirate-demo.git
 cd voice-to-voice-pirate-demo
 cp .env.example .env
-python3 scripts/preflight.py --mode vllm-llm
-docker compose -f compose.yaml -f compose.llm-vllm.yaml up -d --build   # first build ~10 min, first start downloads ~12 GB
-docker compose -f compose.yaml -f compose.llm-vllm.yaml logs -f s2s     # wait for "Uvicorn running on http://0.0.0.0:8765"
+python3 scripts/preflight.py   # checks Docker, driver, compose config and voice files; does not prove inference
+docker compose up -d --build   # first build ~10 min, first start downloads ~12 GB
+docker compose logs -f s2s     # wait for "Uvicorn running on http://0.0.0.0:8765"
 curl --fail http://localhost:7860/api/health   # {"ready":true,"backend":true,"sdk":true}
 ```
 
 Open **http://localhost:7860**, click the orb, allow the microphone and speak a
 full sentence. Use headphones. Send one throwaway sentence first: the first turn
-after a cold start is slow.
-
-Use the same `-f` list for every command while a mode is running:
+after a cold start is slow (the first 1–2 LLM requests can even time out).
 
 ```bash
-docker compose -f compose.yaml -f compose.llm-vllm.yaml ps -a       # s2s, llm and ui must be "healthy"
-docker compose -f compose.yaml -f compose.llm-vllm.yaml down        # stop; keeps model caches
-docker compose -f compose.yaml -f compose.llm-vllm.yaml restart s2s # after changing voices/
-docker compose -f compose.yaml -f compose.llm-vllm.yaml up -d --build  # after changing scripts/, patches/, Dockerfile.backend
+docker compose ps -a              # llm, s2s and ui must be "healthy"
+docker compose down               # stop; keeps model caches
+docker compose restart s2s        # after changing voices/
+docker compose up -d --build      # after changing scripts/, patches/, Dockerfile.backend
 ```
+
+VRAM is mostly vLLM's up-front reservation (`LLM_GPU_MEMORY_UTILIZATION` in
+`.env`), not what the model needs. `v0.30.0-cu129` of the vLLM image crashes on
+import, hence the pin.
+
+Qwen3-4B sometimes answers German text in English with this prompt (FR/ES/IT are
+fine); check German by voice before demoing.
 
 If you are on a Tailscale tailnet that advertises `172.18.0.0/16` or
 `172.20.0.0/17` (the HF one does), Docker's default subnets collide with it and
@@ -61,24 +70,6 @@ containers silently lose network (`s2s` hangs at `health: starting`).
 For a remote GPU server, tunnel the UI: `ssh -N -L 7860:127.0.0.1:7860 USER@GPU_HOST`.
 The browser microphone needs localhost or HTTPS. There is no authentication; do
 not expose the UI publicly.
-
-## Inference modes
-
-| Mode | Compose files | Where the models run | First audio | VRAM |
-| --- | --- | --- | --- | --- |
-| In-process | `compose.yaml` | LLM and OmniVoice inside `s2s` | ~2.5 s | 17 GB |
-| LLM on vLLM (recommended) | `+ compose.llm-vllm.yaml` | Qwen on `vllm-openai`, OmniVoice in `s2s` | ~2 s | 20 GB |
-
-First-audio times are measured from a text request and exclude the ~0.5–0.8 s of
-silence turn detection waits for. In vLLM mode, VRAM is mostly vLLM's up-front
-reservation (`LLM_GPU_MEMORY_UTILIZATION` in `.env`), not what the model needs.
-
-Image: `vllm/vllm-openai:v0.29.0-cu129` (`v0.30.0-cu129` crashes on import).
-Preflight modes are `local` and `vllm-llm`; add `--check-images` to verify the tag.
-Preflight checks config, voice files, Docker and driver; it does not prove inference.
-
-For an external LLM, omit `compose.llm-vllm.yaml` and set `LLM_BASE_URL`,
-`LLM_MODEL` and `OPENAI_API_KEY` in `.env`.
 
 ## How the voice follows the language
 
@@ -92,29 +83,20 @@ language goes to the LLM prompt and to the TTS handler, which picks
 
 ## Smoke tests
 
-Run inside `s2s` with the same `-f` list you launched with. Outputs go to
-`artifacts/`.
+Run inside `s2s`. Outputs go to `artifacts/`.
 
 ```bash
 # Text → spoken reply through the whole relay (bypasses STT)
-docker compose -f compose.yaml -f compose.llm-vllm.yaml exec s2s \
-  python scripts/smoke_realtime.py --url ws://ui:7860/api/realtime \
+docker compose exec s2s python scripts/smoke_realtime.py --url ws://ui:7860/api/realtime \
   --text "Bonjour Painty, où allons-nous aujourd'hui ?" --output /artifacts/text-fr.wav
 
 # Recorded speech (mono 24 kHz PCM16) → reply, exercises STT and language selection
-docker compose -f compose.yaml -f compose.llm-vllm.yaml exec s2s \
-  python scripts/smoke_realtime.py --url ws://ui:7860/api/realtime \
+docker compose exec s2s python scripts/smoke_realtime.py --url ws://ui:7860/api/realtime \
   --input-audio /artifacts/question-fr.wav --output /artifacts/audio-fr.wav
 ```
 
 A valid WAV does not prove pronunciation, speaker similarity or reply language;
 listen to it.
-
-## Reachy Mini
-
-[integrations/reachy](integrations/reachy/README.md) has a Painty profile for the
-Reachy Mini conversation app, a port overlay (`compose.reachy.yaml`) and a tunnel
-recipe. The profile has no robot tools. It has not been run on hardware.
 
 ## Tests and upstream patches
 

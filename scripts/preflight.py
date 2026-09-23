@@ -16,12 +16,7 @@ from pathlib import Path
 from voice_files import validate_language_voices, validate_voice, voice_directory
 
 ROOT = Path(__file__).resolve().parents[1]
-MODES = {"local": [], "vllm-llm": ["compose.llm-vllm.yaml"]}
-
-
-def compose_command(mode, reachy=False):
-    files = ["compose.yaml", *MODES[mode], *(["compose.reachy.yaml"] if reachy else [])]
-    return ["docker", "compose", *[v for name in files for v in ("-f", name)]]
+DEFAULT_LLM_IMAGE = "vllm/vllm-openai:v0.29.0-cu129"
 
 
 def version_tuple(value):
@@ -31,25 +26,21 @@ def version_tuple(value):
     return tuple(int(n or 0) for n in match.groups())
 
 
-def driver_issues(driver, services):
+def driver_issues(driver, llm_image=DEFAULT_LLM_IMAGE):
     """Conservative rules for this package's default CUDA images, not all GPUs."""
-    major = version_tuple(driver)[0]
     problems, warnings = [], []
-    if major < 570:
-        problems.append("The CUDA 12.8 backend targets driver 570 or newer; upgrade on the GPU host.")
-    if "llm" in services:
-        image = services["llm"]["image"]
-        if image == "vllm/vllm-openai:v0.29.0-cu129" and major < 580:
-            problems.append("The vLLM LLM image fails on pre-580 drivers (Triton: device kernel image is invalid); upgrade to 580+.")
-        elif image != "vllm/vllm-openai:v0.29.0-cu129":
-            warnings.append("Custom LLM image: verify its CUDA/driver compatibility separately.")
+    if version_tuple(driver)[0] < 580:
+        problems.append("The vLLM image fails on pre-580 drivers (Triton: device kernel image is invalid); upgrade to 580+.")
+    if llm_image != DEFAULT_LLM_IMAGE:
+        warnings.append("Custom LLM image: verify its CUDA/driver compatibility separately.")
     return problems, warnings
 
 
-def check(mode="local", reachy=False, check_images=False):
-    report = {"mode": mode, "ready_for_launch": False, "errors": [], "warnings": [], "checks": {}}
+def check(check_images=False):
+    report = {"ready_for_launch": False, "errors": [], "warnings": [], "checks": {}}
     errors, warnings, checks = report["errors"], report["warnings"], report["checks"]
-    command = compose_command(mode, reachy)
+    command = ["docker", "compose"]
+    llm_image = DEFAULT_LLM_IMAGE
 
     def run(argv, timeout=30):
         result = subprocess.run(argv, cwd=ROOT, capture_output=True, text=True, timeout=timeout)
@@ -65,7 +56,6 @@ def check(mode="local", reachy=False, check_images=False):
         warnings.append("Less than 40 GiB disk is free; images and model caches can require tens of GiB.")
     if not shutil.which("docker"):
         errors.append("Docker is not installed or is not on PATH.")
-        services = {}
     else:
         try:
             version = run(["docker", "compose", "version", "--short"]).strip()
@@ -82,20 +72,16 @@ def check(mode="local", reachy=False, check_images=False):
             langs = Path(voice["audio"]).parent / "langs"
             checks["voice"] = {"sha256": voice["sha256"],
                                "language_references": sorted(validate_language_voices(langs)) if langs.exists() else []}
-            if not env.get("LLM_BASE_URL") and "llm" in services:
-                errors.append("LLM overlay is active but the backend has no LLM_BASE_URL.")
-            if "llm" in services:
-                args = services["llm"]["command"]
-                fraction = float(args[args.index("--gpu-memory-utilization") + 1])
-                if not 0 < fraction < 1:
-                    errors.append("llm GPU memory fraction must be between 0 and 1.")
-                if check_images:
-                    run(["docker", "manifest", "inspect", services["llm"]["image"]], timeout=60)
+            llm_image = services["llm"]["image"]
+            args = services["llm"]["command"]
+            fraction = float(args[args.index("--gpu-memory-utilization") + 1])
+            if not 0 < fraction < 1:
+                errors.append("llm GPU memory fraction must be between 0 and 1.")
             if check_images:
+                run(["docker", "manifest", "inspect", llm_image], timeout=60)
                 checks["image_manifests"] = "available"
         except (ValueError, KeyError, OSError, subprocess.TimeoutExpired) as exc:
             errors.append(str(exc))
-            services = {}
     if not shutil.which("nvidia-smi"):
         errors.append("nvidia-smi is unavailable; run this check on the GPU host.")
     else:
@@ -105,13 +91,13 @@ def check(mode="local", reachy=False, check_images=False):
             for row in rows.strip().splitlines():
                 name, driver, total, free = [value.strip() for value in row.split(",")]
                 checks["gpus"].append({"name": name, "driver": driver, "total_mib": int(total), "free_mib": int(free)})
-                issues, notes = driver_issues(driver, services)
+                issues, notes = driver_issues(driver, llm_image)
                 errors.extend(issues)
                 warnings.extend(notes)
             if not checks["gpus"]:
                 errors.append("No NVIDIA GPUs were found.")
             elif checks["gpus"][0]["free_mib"] < 20 * 1024:
-                warnings.append("GPU 0 has less than 20 GiB free; reduce allocations or move the LLM to a remote host.")
+                warnings.append("GPU 0 has less than 20 GiB free; lower LLM_GPU_MEMORY_UTILIZATION or free the GPU.")
         except (ValueError, OSError, subprocess.TimeoutExpired) as exc:
             errors.append(str(exc))
     warnings.append("Preflight does not load CUDA inside containers or measure VRAM fit. Run the inference checks after startup.")
@@ -122,12 +108,10 @@ def check(mode="local", reachy=False, check_images=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mode", choices=MODES, default="local")
-    parser.add_argument("--reachy", action="store_true")
     parser.add_argument("--check-images", action="store_true")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    result = check(args.mode, args.reachy, args.check_images)
+    result = check(args.check_images)
     rendered = json.dumps(result, indent=2) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

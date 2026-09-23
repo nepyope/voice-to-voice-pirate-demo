@@ -1,6 +1,0 @@
-# Bind the backend to loopback by default; tunnel it to a Reachy client.
-# On an isolated LAN set REALTIME_BIND to this host's LAN address explicitly.
-services:
-  s2s:
-    ports:
-      - "${REALTIME_BIND:-127.0.0.1}:${REALTIME_PORT:-8765}:8765"
