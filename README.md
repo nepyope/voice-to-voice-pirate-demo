@@ -80,16 +80,7 @@ language goes to the LLM prompt and to the TTS handler, which picks
 [voices/README.md](voices/README.md) and, for how the clips were made,
 [docs/VOICE_PIPELINE.md](docs/VOICE_PIPELINE.md).
 
-## Tests and upstream patches
-
-```bash
-python3 -m venv .venv && . .venv/bin/activate
-pip install -r requirements-test.txt
-pytest -q tests
-(cd hf-realtime-voice && npm test)
-```
-
-These are CPU protocol/config tests, not GPU inference tests.
+## Upstream patches
 
 `Dockerfile.backend` builds `speech-to-speech` at commit
 `ca5c33c9bb5e381288d315d1f8da122613845c4c` with the patches in `patches/`.

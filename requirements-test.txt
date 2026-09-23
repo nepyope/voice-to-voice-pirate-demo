@@ -1,3 +1,0 @@
--r hf-realtime-voice/requirements.txt
-pytest==8.3.5
-PyYAML==6.0.3
