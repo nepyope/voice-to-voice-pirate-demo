@@ -1,0 +1,16 @@
+{
+  "mode": "vllm",
+  "ready_for_launch": false,
+  "errors": [
+    "Docker is not installed or is not on PATH.",
+    "nvidia-smi is unavailable; run this check on the GPU host."
+  ],
+  "warnings": [
+    "Less than 40 GiB disk is free; images and model caches can require tens of GiB.",
+    "Preflight does not load CUDA inside containers or measure VRAM fit. Run the inference checks after startup."
+  ],
+  "checks": {
+    "free_disk_gib": 29.2
+  },
+  "launch_command": "docker compose -f compose.yaml -f compose.vllm.yaml -f compose.llm-vllm.yaml up -d --build"
+}

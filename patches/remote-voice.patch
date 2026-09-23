@@ -1,0 +1,156 @@
+--- a/src/speech_to_speech/arguments_classes/openai_tts_arguments.py
++++ b/src/speech_to_speech/arguments_classes/openai_tts_arguments.py
+@@ -25,6 +25,22 @@
+     openai_tts_language: Optional[str] = field(
+         default=None,
+         metadata={"help": "Optional fixed language value forwarded unchanged with every speech request."},
++    )
++    openai_tts_ref_audio: Optional[str] = field(
++        default=None,
++        metadata={"help": "Reference audio URL for voice cloning; requires ref_text."},
++    )
++    openai_tts_ref_text: Optional[str] = field(
++        default=None,
++        metadata={"help": "Exact transcript of the reference audio."},
++    )
++    openai_tts_ref_voices_dir: Optional[str] = field(
++        default=None,
++        metadata={"help": "Directory of <language>.wav and matching .txt references; exact/base language fallback."},
++    )
++    openai_tts_ref_voices_base_url: Optional[str] = field(
++        default=None,
++        metadata={"help": "Optional file or HTTP base URL for the reference directory on the remote TTS server."},
+     )
+     openai_tts_task_type: Optional[str] = field(
+         default=None,
+--- a/src/speech_to_speech/TTS/openai_compatible_handler.py
++++ b/src/speech_to_speech/TTS/openai_compatible_handler.py
+@@ -369,6 +369,10 @@
+         model: str = "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+         voice: str = "aiden",
+         language: str | None = None,
++        ref_audio: str | None = None,
++        ref_text: str | None = None,
++        ref_voices_dir: str | None = None,
++        ref_voices_base_url: str | None = None,
+         task_type: str | None = None,
+         instructions: str | None = None,
+         response_format: str = "pcm",
+@@ -392,6 +396,12 @@
+         if stream and speed != 1.0:
+             raise ValueError("The vLLM streaming extension requires speed=1.0")
+ 
++        if bool(ref_audio) != bool(ref_text and ref_text.strip()):
++            raise ValueError("ref_audio and non-empty ref_text must be configured together")
++        self.ref_audio = ref_audio
++        self.ref_text = ref_text
++        self.reference_voices = self._load_reference_voices(ref_voices_dir, ref_voices_base_url)
++
+         self.should_listen = should_listen
+         self.base_url = base_url.rstrip("/")
+         self.endpoint_url = f"{self.base_url}/audio/speech"
+@@ -501,7 +511,7 @@
+         operation: HttpSpeechOperation | None = None
+         try:
+             voice = self._resolve_voice(tts_input.runtime_config, tts_input.response)
+-            operation = self._make_operation(text=text, voice=voice)
++            operation = self._make_operation(text=text, voice=voice, language=tts_input.language_code)
+             with self._operation_lock:
+                 self._active_operation = operation
+             source_chunks = operation.iter_bytes(cancel_check)
+@@ -572,11 +582,12 @@
+         *,
+         text: str,
+         voice: str | dict[str, str],
++        language: str | None = None,
+     ) -> HttpSpeechOperation:
+         return HttpSpeechOperation(
+             endpoint_url=self.endpoint_url,
+             api_key=self.api_key,
+-            payload=self._request_payload(text=text, voice=voice),
++            payload=self._request_payload(text=text, voice=voice, language=language),
+             timeout_s=self.timeout,
+             response_format=self.response_format,
+         )
+@@ -586,6 +597,7 @@
+         *,
+         text: str,
+         voice: str | dict[str, str],
++        language: str | None = None,
+     ) -> dict[str, Any]:
+         payload: dict[str, Any] = {
+             "model": self.model,
+@@ -600,19 +612,71 @@
+             payload["stream"] = True
+         elif self.speed != 1.0:
+             payload["speed"] = self.speed
+-        if self.language:
+-            payload["language"] = self.language
++        effective_language = self.language or language
++        if effective_language and effective_language != "auto":
++            payload["language"] = effective_language
++        ref_audio, ref_text = self._reference_for_language(effective_language)
++        if ref_audio:
++            payload["ref_audio"] = ref_audio
++            payload["ref_text"] = ref_text
+         if self.task_type:
+             payload["task_type"] = self.task_type
+         if self.instructions:
+             payload["instructions"] = self.instructions
+         return payload
+ 
++    @staticmethod
++    def _load_reference_voices(directory: str | None, base_url: str | None) -> dict[str, tuple[str, str]]:
++        """Load once at startup; language values never become filesystem paths."""
++        import re
++        from pathlib import Path
++        from urllib.parse import quote, urlsplit, urlunsplit
++
++        if directory is None:
++            if base_url is not None:
++                raise ValueError("ref_voices_base_url requires ref_voices_dir")
++            return {}
++        root = Path(directory).resolve()
++        if not root.is_dir():
++            raise ValueError(f"ref_voices_dir {directory!r} is not a directory")
++        base = urlsplit(base_url) if base_url else None
++        if base and (base.scheme not in {"file", "http", "https"} or base.query or base.fragment):
++            raise ValueError("ref_voices_base_url must be a file/HTTP directory URL without query or fragment")
++        voices: dict[str, tuple[str, str]] = {}
++        for audio in sorted(root.glob("*.wav")):
++            code = audio.stem.lower().replace("_", "-")
++            if not re.fullmatch(r"[a-z]{2,3}(?:-[a-z0-9]{2,8})*", code):
++                raise ValueError(f"Invalid reference language code: {audio.stem!r}")
++            if code in voices:
++                raise ValueError(f"Duplicate reference language code: {code}")
++            transcript = audio.with_suffix(".txt")
++            if not transcript.is_file() or not (text := transcript.read_text(encoding="utf-8").strip()):
++                raise ValueError(f"{audio.name} requires a non-empty matching transcript")
++            uri = (urlunsplit((base.scheme, base.netloc, base.path.rstrip("/") + "/" + quote(audio.name), "", ""))
++                   if base else audio.as_uri())
++            voices[code] = (uri, text)
++        for transcript in root.glob("*.txt"):
++            if not transcript.with_suffix(".wav").is_file():
++                raise ValueError(f"{transcript.name} requires a matching WAV")
++        logger.info("Loaded %d per-language remote TTS references", len(voices))
++        return voices
++
++    def _reference_for_language(self, language: str | None) -> tuple[str | None, str | None]:
++        code = (language or "").strip().lower().replace("_", "-")
++        for candidate in (code, code.split("-")[0]):
++            if candidate in self.reference_voices:
++                return self.reference_voices[candidate]
++        return self.ref_audio, self.ref_text
++
+     def _resolve_voice(
+         self,
+         runtime_config: RuntimeConfig | None,
+         response: Any,
+     ) -> str | dict[str, str]:
++        # A configured clone is server-owned; client preset names must not change
++        # that speaker or request a preset unsupported by the cloning provider.
++        if self.ref_audio or self.reference_voices:
++            return self.voice
+         if response and response.audio and response.audio.output and response.audio.output.voice:
+             return self._serialize_voice(response.audio.output.voice)
+         if runtime_config is not None:

@@ -1,0 +1,21 @@
+FROM python:3.11-slim-bookworm
+ARG S2S_COMMIT=ca5c33c9bb5e381288d315d1f8da122613845c4c
+ENV PYTHONUNBUFFERED=1 HF_HOME=/cache/huggingface
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git build-essential ffmpeg libsndfile1 libportaudio2 && rm -rf /var/lib/apt/lists/*
+WORKDIR /opt/s2s
+RUN git init . && git remote add origin https://github.com/huggingface/speech-to-speech.git \
+    && git fetch --depth 1 origin ${S2S_COMMIT} && git checkout --detach FETCH_HEAD
+COPY patches/remote-voice.patch /tmp/remote-voice.patch
+RUN git apply --check /tmp/remote-voice.patch && git apply /tmp/remote-voice.patch
+COPY patches/omnivoice-dependencies.patch /tmp/omnivoice-dependencies.patch
+RUN git apply --check /tmp/omnivoice-dependencies.patch && git apply /tmp/omnivoice-dependencies.patch
+COPY patches/per-language-voices.patch /tmp/per-language-voices.patch
+RUN git apply --check /tmp/per-language-voices.patch && git apply /tmp/per-language-voices.patch
+COPY requirements-backend.lock /tmp/constraints.txt
+RUN pip install --no-cache-dir torch==2.8.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/cu128
+RUN pip install --no-cache-dir -c /tmp/constraints.txt '.[omnivoice]' soundfile && pip check
+WORKDIR /app
+COPY scripts/ ./scripts/
+COPY hf-realtime-voice/pirate.json ./hf-realtime-voice/pirate.json
+CMD ["python", "scripts/launch_backend.py"]

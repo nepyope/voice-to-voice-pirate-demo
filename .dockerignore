@@ -1,0 +1,16 @@
+.git
+.env
+.venv
+artifacts
+validation
+voices
+reference
+tests
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+**/*.log
+*.zip
+
+**/pytest-of-root
+**/.pytest_cache

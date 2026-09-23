@@ -1,0 +1,797 @@
+{
+  "es-419": {
+    "block": -1,
+    "seconds": 10.91,
+    "text": "¿Están listos, chicos? ¡No los escucho! Vive en una piña debajo del mar Su cuerpo absorbe y sin estallar El mejor amigo que podrías desear",
+    "source_spans": [
+      [
+        41.0,
+        42.61
+      ],
+      [
+        44.54,
+        45.77
+      ],
+      [
+        49.98,
+        52.83
+      ],
+      [
+        54.7,
+        56.95
+      ],
+      [
+        58.72,
+        60.89
+      ]
+    ]
+  },
+  "fr": {
+    "block": 0,
+    "seconds": 11.4,
+    "text": "Prêts les enfants ? J'ai pas entendu ! Oh ! Qui vit dans un ananas dans l'homère ? Qui compte bien y faire carrière ? Si vous avez un souhait, il faut qu'il l'appelle !",
+    "source_spans": [
+      [
+        81.94,
+        83.33
+      ],
+      [
+        85.1,
+        86.71
+      ],
+      [
+        88.94,
+        90.15
+      ],
+      [
+        91.38,
+        93.65
+      ],
+      [
+        95.64,
+        97.61
+      ],
+      [
+        99.58,
+        101.53
+      ]
+    ]
+  },
+  "de": {
+    "block": 1,
+    "seconds": 11.38,
+    "text": "Alles klar, Kinder? Geht das nicht lauter? Oh! Wer wohnt in der anderen, das ganz tiefe Meer? Saugstangen gelb und hohes und zwar sehr! Wenn der Sinn nach pazifischem Blödsinn euch steht,",
+    "source_spans": [
+      [
+        122.46,
+        123.69
+      ],
+      [
+        125.7,
+        127.15
+      ],
+      [
+        129.24,
+        129.77
+      ],
+      [
+        131.76,
+        134.41
+      ],
+      [
+        136.26,
+        138.43
+      ],
+      [
+        140.06,
+        142.41
+      ]
+    ]
+  },
+  "zh": {
+    "block": 2,
+    "seconds": 10.47,
+    "text": "准备好了吗 孩子们 太小声了 是谁住在深海的大风里里 风风火火 身所自有 如果四处谈写是你力源王",
+    "source_spans": [
+      [
+        163.21,
+        164.92
+      ],
+      [
+        166.31,
+        167.88
+      ],
+      [
+        172.97,
+        175.34
+      ],
+      [
+        177.23,
+        179.3
+      ],
+      [
+        181.39,
+        183.34
+      ]
+    ]
+  },
+  "ja": {
+    "block": 3,
+    "seconds": 10.24,
+    "text": "準備はいいかね? はい! 声が小さいぞ! パイナップルに住んでいる いつも楽しく暮らしてる 魚はちょっと怖いけど",
+    "source_spans": [
+      [
+        204.31,
+        205.56
+      ],
+      [
+        205.51,
+        206.08
+      ],
+      [
+        207.53,
+        208.64
+      ],
+      [
+        213.55,
+        215.9
+      ],
+      [
+        221.95,
+        224.1
+      ],
+      [
+        225.99,
+        227.8
+      ]
+    ]
+  },
+  "uk": {
+    "block": 4,
+    "seconds": 10.5,
+    "text": "Ви готові, діти? Я не чую! Хто жиме в ананасі у морі на дні? Хто жовтий шпарістий, куди не зірни?",
+    "source_spans": [
+      [
+        244.3,
+        246.21
+      ],
+      [
+        248.02,
+        249.09
+      ],
+      [
+        251.52,
+        256.43
+      ],
+      [
+        258.38,
+        260.39
+      ]
+    ]
+  },
+  "da": {
+    "block": 5,
+    "seconds": 10.63,
+    "text": "Er I parate børn? Jeg kan ikke høre jer! Hvem bruger en anden af støtte i det blå? Er guler på grøs og suger som få? Og knapper om alt i en endelig strøm?",
+    "source_spans": [
+      [
+        285.1,
+        287.07
+      ],
+      [
+        288.94,
+        290.13
+      ],
+      [
+        295.02,
+        297.41
+      ],
+      [
+        299.2,
+        301.25
+      ],
+      [
+        303.22,
+        305.45
+      ]
+    ]
+  },
+  "ar": {
+    "block": 6,
+    "seconds": 11.0,
+    "text": "جاهزون يا أطفال؟ لا أسمعكم من يسكن البحر ويحبه الناس؟ لونه أصفر مربع أساس؟",
+    "source_spans": [
+      [
+        325.9,
+        327.83
+      ],
+      [
+        329.54,
+        330.59
+      ],
+      [
+        333.06,
+        338.37
+      ],
+      [
+        340.12,
+        342.23
+      ]
+    ]
+  },
+  "sr": {
+    "block": 7,
+    "seconds": 10.73,
+    "text": "Gotovi li ste, deca? Ne viču vam! Na moško tudi no kako viš našti? Še od učene dubke so siri oči! Katoli razbira od morskih dela?",
+    "source_spans": [
+      [
+        366.71,
+        368.42
+      ],
+      [
+        370.45,
+        371.82
+      ],
+      [
+        376.01,
+        378.96
+      ],
+      [
+        380.85,
+        382.84
+      ],
+      [
+        384.87,
+        386.78
+      ]
+    ]
+  },
+  "ta": {
+    "block": 8,
+    "seconds": 12.25,
+    "text": "தயாரா பசங்களா நன்றா சத்தமா சொல்லுங்க கடலிக்கைக் கீடை பைனாப்பில் வீடு குடித்திடையுங்க தொட்டுக்கு முண்டு ரசிக்க விஷயங்கள் நாரைக்கும் குண்டே",
+    "source_spans": [
+      [
+        407.11,
+        408.9
+      ],
+      [
+        410.81,
+        412.58
+      ],
+      [
+        417.09,
+        419.36
+      ],
+      [
+        420.81,
+        423.52
+      ],
+      [
+        424.71,
+        427.62
+      ]
+    ]
+  },
+  "ro": {
+    "block": 9,
+    "seconds": 11.12,
+    "text": "Sunteți gata, copii? Nu vă aud! Cine trăiește într-un ananas? E gălbe pufos și vorbește pe nas! Te vrei să afli prostii de prin mare?",
+    "source_spans": [
+      [
+        448.32,
+        450.52
+      ],
+      [
+        452.08,
+        453.37
+      ],
+      [
+        458.4,
+        460.83
+      ],
+      [
+        462.7,
+        464.91
+      ],
+      [
+        466.74,
+        468.93
+      ]
+    ]
+  },
+  "is": {
+    "block": 10,
+    "seconds": 11.76,
+    "text": "Eru þau tilbúinn? Ég heyr ekki ykkur Og hver býri djúpinu í ananas? Eins ostur í bók sem hún ammaðinn las?",
+    "source_spans": [
+      [
+        489.12,
+        491.11
+      ],
+      [
+        492.74,
+        494.35
+      ],
+      [
+        496.24,
+        501.61
+      ],
+      [
+        503.5,
+        505.69
+      ]
+    ]
+  },
+  "ru": {
+    "block": 11,
+    "seconds": 10.03,
+    "text": "Вы готовы, дети? Я не слышу! Кто? Кто проживает на дне океана? Желтая губка, малыш без изъяна?",
+    "source_spans": [
+      [
+        529.92,
+        531.97
+      ],
+      [
+        533.62,
+        535.15
+      ],
+      [
+        537.42,
+        538.07
+      ],
+      [
+        539.64,
+        542.51
+      ],
+      [
+        544.24,
+        546.37
+      ]
+    ]
+  },
+  "th": {
+    "block": 12,
+    "seconds": 10.89,
+    "text": "พร้อมหรือยังเด็กๆ ดังอีกนิดสิ โอ้โห ใครอาศัยในสับปรดในทะเล ดูตำนับได้ดีมีสิ่งเลือดและมีรู",
+    "source_spans": [
+      [
+        571.23,
+        572.84
+      ],
+      [
+        574.57,
+        576.1
+      ],
+      [
+        578.15,
+        580.8
+      ],
+      [
+        580.93,
+        583.06
+      ],
+      [
+        584.99,
+        587.16
+      ]
+    ]
+  },
+  "es": {
+    "block": 13,
+    "seconds": 11.17,
+    "text": "¿Estáis listos? ¡Nos oigo! ¿Quién vive en la piña debajo del mar? ¡Absorbe de todo y puede explotar! ¡Si lo que queréis es un mundo al revés!",
+    "source_spans": [
+      [
+        611.53,
+        613.44
+      ],
+      [
+        615.35,
+        616.34
+      ],
+      [
+        621.27,
+        624.0
+      ],
+      [
+        625.63,
+        628.0
+      ],
+      [
+        629.69,
+        632.06
+      ]
+    ]
+  },
+  "te": {
+    "block": 14,
+    "seconds": 10.52,
+    "text": "సిద్దమా పిల్లలు కొచ్చమ్ గిట్టికా జబ్బండి సముద్రం లో పల పినప్పల్ ఇల్లో స్మానానికి ఇక్కడా తొట్టే ఉంది",
+    "source_spans": [
+      [
+        651.94,
+        654.11
+      ],
+      [
+        655.64,
+        657.55
+      ],
+      [
+        662.14,
+        664.81
+      ],
+      [
+        665.64,
+        668.81
+      ]
+    ]
+  },
+  "el": {
+    "block": 15,
+    "seconds": 3.54,
+    "text": "Είσαστε έτοιμοι Δεν σας ακούω",
+    "source_spans": [
+      [
+        693.14,
+        695.01
+      ],
+      [
+        696.9,
+        698.37
+      ]
+    ]
+  },
+  "tr": {
+    "block": 16,
+    "seconds": 11.3,
+    "text": "Hazır mısınız çocuklar? Sizi duyamıyorum. Suyun dibinde alan hasta yaşar. Sarı renkli ve gözenekleri var. Sakın karıştırma bir peynir değil.",
+    "source_spans": [
+      [
+        733.94,
+        736.14
+      ],
+      [
+        737.58,
+        739.23
+      ],
+      [
+        743.76,
+        746.41
+      ],
+      [
+        748.4,
+        750.43
+      ],
+      [
+        752.26,
+        754.23
+      ]
+    ]
+  },
+  "ko": {
+    "block": 17,
+    "seconds": 11.6,
+    "text": "준비됐나? 네, 잘 안들려? 네, 깊은 저 바닷속 파인애플 네모난 얼굴에 동그란 눈 무너도 길어도 뻗어진 후",
+    "source_spans": [
+      [
+        774.75,
+        776.82
+      ],
+      [
+        777.99,
+        780.45
+      ],
+      [
+        784.05,
+        786.58
+      ],
+      [
+        788.67,
+        790.6
+      ],
+      [
+        792.77,
+        794.58
+      ]
+    ]
+  },
+  "sl": {
+    "block": 18,
+    "seconds": 11.04,
+    "text": "Ste pripravljeni? Ne slišim vas! O! Lek dova na nas podmorjem živi! Upojen rumen in porozen se zdi! Če smeh in orčije so kar si želiš!",
+    "source_spans": [
+      [
+        816.65,
+        817.9
+      ],
+      [
+        819.85,
+        821.32
+      ],
+      [
+        823.29,
+        823.8
+      ],
+      [
+        825.89,
+        828.36
+      ],
+      [
+        830.35,
+        832.46
+      ],
+      [
+        834.31,
+        836.54
+      ]
+    ]
+  },
+  "fi": {
+    "block": 19,
+    "seconds": 11.2,
+    "text": "Valmiina lapset! Mä en kuullu! Ken ananas mekin saa asua saa? Henkäälpainen on ja arvaamaton! Vanhassa joutuja nähdä nyt saa!",
+    "source_spans": [
+      [
+        856.36,
+        858.56
+      ],
+      [
+        860.72,
+        861.85
+      ],
+      [
+        866.24,
+        869.03
+      ],
+      [
+        870.92,
+        872.97
+      ],
+      [
+        874.94,
+        877.17
+      ]
+    ]
+  },
+  "no": {
+    "block": 20,
+    "seconds": 10.85,
+    "text": "Er dere klare, barn? Jeg hørte ikke! Hvem bor i en annen stipp enn i sjøen? Helt gula med huls, han suger seg grønn! Er sjøfjoller i noe som du vil se?",
+    "source_spans": [
+      [
+        897.16,
+        899.15
+      ],
+      [
+        901.16,
+        902.27
+      ],
+      [
+        907.28,
+        909.85
+      ],
+      [
+        911.54,
+        913.83
+      ],
+      [
+        915.56,
+        917.65
+      ]
+    ]
+  },
+  "hr": {
+    "block": 21,
+    "seconds": 11.12,
+    "text": "Ješte-li spremný? Sláva vás tujem! Pod! More von živý, boli svoj dom! Žudie i skocka, ko pravý bogon! Parpozavol niž mor, nej nebeský smor!",
+    "source_spans": [
+      [
+        937.96,
+        940.05
+      ],
+      [
+        942.16,
+        943.33
+      ],
+      [
+        945.7,
+        946.49
+      ],
+      [
+        948.48,
+        950.49
+      ],
+      [
+        952.48,
+        954.43
+      ],
+      [
+        956.44,
+        958.55
+      ]
+    ]
+  },
+  "sv": {
+    "block": 22,
+    "seconds": 11.97,
+    "text": "Är ni med barn? Jag hör er inte! Åh! Vem bor i en annan syfte det blå? Gynno på rösta pussbena som få! Jag varnar dig kompis, det finns en risk!",
+    "source_spans": [
+      [
+        978.77,
+        980.54
+      ],
+      [
+        982.35,
+        983.84
+      ],
+      [
+        986.21,
+        987.08
+      ],
+      [
+        988.53,
+        990.6
+      ],
+      [
+        990.67,
+        991.18
+      ],
+      [
+        993.11,
+        995.1
+      ],
+      [
+        996.99,
+        999.06
+      ]
+    ]
+  },
+  "cs": {
+    "block": 23,
+    "seconds": 11.86,
+    "text": "Jste připraveni děti? Já vás neslyším! Jo! Kdo žije v ananosu na dně moří? A velikou lásku tajně hoří? A jestli snad někdo z vás pochyby má?",
+    "source_spans": [
+      [
+        1019.57,
+        1021.62
+      ],
+      [
+        1023.37,
+        1025.02
+      ],
+      [
+        1026.83,
+        1027.3
+      ],
+      [
+        1029.05,
+        1031.68
+      ],
+      [
+        1033.65,
+        1035.74
+      ],
+      [
+        1037.71,
+        1039.68
+      ]
+    ]
+  },
+  "hu": {
+    "block": 24,
+    "seconds": 12.07,
+    "text": "Mindenki kész? Hangosabban? Ó! Ki lakik oda, nekik rejt a víz? Sárga a színe és lyuk rajta tíz? Kár, hogy a levegőn csak szabad íz?",
+    "source_spans": [
+      [
+        1060.38,
+        1062.58
+      ],
+      [
+        1064.96,
+        1065.97
+      ],
+      [
+        1068.0,
+        1068.41
+      ],
+      [
+        1070.28,
+        1073.05
+      ],
+      [
+        1074.7,
+        1077.07
+      ],
+      [
+        1078.78,
+        1081.09
+      ]
+    ]
+  },
+  "nl": {
+    "block": 25,
+    "seconds": 11.24,
+    "text": "Kunnen we kinderen? Ik hoor het niet! Oh! Hij woont in een ananasdiep in de zee. En hij is niet zo geel als een kaars soufflé. Ja, iedereen weet wat een mafkes het is.",
+    "source_spans": [
+      [
+        1101.76,
+        1102.95
+      ],
+      [
+        1105.06,
+        1106.35
+      ],
+      [
+        1108.5,
+        1109.01
+      ],
+      [
+        1110.94,
+        1113.79
+      ],
+      [
+        1115.4,
+        1117.63
+      ],
+      [
+        1119.52,
+        1121.69
+      ]
+    ]
+  },
+  "pl": {
+    "block": 26,
+    "seconds": 11.04,
+    "text": "Jesteście gotowi? Nie słyszałem! O! Kto ananasowy pod wodą ma dom? Gopciasto kanciasty i żółty jak on! Kto grzyby i fale ze śmiechuszce gryźć?",
+    "source_spans": [
+      [
+        1142.72,
+        1144.07
+      ],
+      [
+        1145.62,
+        1147.01
+      ],
+      [
+        1149.44,
+        1149.83
+      ],
+      [
+        1151.82,
+        1154.53
+      ],
+      [
+        1156.46,
+        1158.53
+      ],
+      [
+        1160.52,
+        1162.65
+      ]
+    ]
+  },
+  "pt": {
+    "block": 27,
+    "seconds": 11.12,
+    "text": "Vocês estão prontas, crianças? Eu não ouvi direito. Oh, bebido abacaxi que mora no mar Tem a cor amarela e espirra água",
+    "source_spans": [
+      [
+        1182.79,
+        1184.72
+      ],
+      [
+        1186.49,
+        1187.8
+      ],
+      [
+        1189.71,
+        1194.92
+      ],
+      [
+        1196.71,
+        1198.78
+      ]
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "validator": "Docker Compose v2.30.3 standalone; no Docker daemon",
+  "configurations": [
+    {
+      "mode": "local",
+      "reachy": false,
+      "valid": true,
+      "services": [
+        "s2s",
+        "ui",
+        "voice-init"
+      ]
+    },
+    {
+      "mode": "local",
+      "reachy": true,
+      "valid": true,
+      "services": [
+        "s2s",
+        "ui",
+        "voice-init"
+      ]
+    },
+    {
+      "mode": "vllm-llm",
+      "reachy": false,
+      "valid": true,
+      "services": [
+        "llm",
+        "s2s",
+        "ui",
+        "voice-init"
+      ]
+    },
+    {
+      "mode": "vllm-llm",
+      "reachy": true,
+      "valid": true,
+      "services": [
+        "llm",
+        "s2s",
+        "ui",
+        "voice-init"
+      ]
+    },
+    {
+      "mode": "vllm-tts",
+      "reachy": false,
+      "valid": true,
+      "services": [
+        "s2s",
+        "tts",
+        "ui",
+        "voice-init"
+      ]
+    },
+    {
+      "mode": "vllm-tts",
+      "reachy": true,
+      "valid": true,
+      "services": [
+        "s2s",
+        "tts",
+        "ui",
+        "voice-init"
+      ]
+    },
+    {
+      "mode": "vllm",
+      "reachy": false,
+      "valid": true,
+      "services": [
+        "llm",
+        "s2s",
+        "tts",
+        "ui",
+        "voice-init"
+      ]
+    },
+    {
+      "mode": "vllm",
+      "reachy": true,
+      "valid": true,
+      "services": [
+        "llm",
+        "s2s",
+        "tts",
+        "ui",
+        "voice-init"
+      ]
+    }
+  ]
+}

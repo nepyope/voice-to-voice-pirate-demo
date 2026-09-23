@@ -1,0 +1,97 @@
+{
+  "commit": "ca5c33c9bb5e381288d315d1f8da122613845c4c",
+  "arguments": {
+    "module_arguments": [
+      "device",
+      "enable_live_transcription",
+      "enable_llm_proxy",
+      "live_transcription_min_silence_ms",
+      "live_transcription_update_interval",
+      "llm_backend",
+      "llm_proxy_connect_timeout_s",
+      "log_level",
+      "log_transcripts",
+      "mac_optimal_settings",
+      "num_pipelines",
+      "stt",
+      "tts"
+    ],
+    "realtime_server_arguments": [
+      "host",
+      "port"
+    ],
+    "language_model_base_arguments": [
+      "chat_size",
+      "compact_history",
+      "enable_lang_prompt",
+      "init_chat_prompt",
+      "init_chat_role",
+      "model_name",
+      "stream_batch_sentences",
+      "user_role"
+    ],
+    "language_model_arguments": [
+      "llm_device",
+      "llm_gen_do_sample",
+      "llm_gen_max_new_tokens",
+      "llm_gen_min_new_tokens",
+      "llm_gen_temperature",
+      "llm_is_vlm",
+      "llm_torch_dtype"
+    ],
+    "responses_api_language_model_arguments": [
+      "model_name",
+      "responses_api_api_key",
+      "responses_api_audio_content_type",
+      "responses_api_audio_history_turns",
+      "responses_api_audio_max_tokens",
+      "responses_api_audio_temperature",
+      "responses_api_base_url",
+      "responses_api_disable_thinking",
+      "responses_api_reasoning_effort",
+      "responses_api_stream"
+    ],
+    "chat_completions_language_model_arguments": [
+      "responses_api_reasoning_effort"
+    ],
+    "parakeet_tdt_arguments": [
+      "parakeet_tdt_compute_type",
+      "parakeet_tdt_device",
+      "parakeet_tdt_language",
+      "parakeet_tdt_model_name"
+    ],
+    "omnivoice_tts_arguments": [
+      "omnivoice_blocksize",
+      "omnivoice_device",
+      "omnivoice_dtype",
+      "omnivoice_instruct",
+      "omnivoice_language",
+      "omnivoice_model_name",
+      "omnivoice_num_steps",
+      "omnivoice_ref_audio",
+      "omnivoice_ref_text",
+      "omnivoice_ref_voices_dir",
+      "omnivoice_speed",
+      "omnivoice_voice_clone_prompt"
+    ],
+    "openai_tts_arguments": [
+      "openai_tts_api_key",
+      "openai_tts_base_url",
+      "openai_tts_blocksize",
+      "openai_tts_instructions",
+      "openai_tts_language",
+      "openai_tts_model",
+      "openai_tts_ref_audio",
+      "openai_tts_ref_text",
+      "openai_tts_ref_voices_base_url",
+      "openai_tts_ref_voices_dir",
+      "openai_tts_response_format",
+      "openai_tts_sample_rate",
+      "openai_tts_speed",
+      "openai_tts_stream",
+      "openai_tts_task_type",
+      "openai_tts_timeout",
+      "openai_tts_voice"
+    ]
+  }
+}

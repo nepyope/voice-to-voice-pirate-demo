@@ -1,0 +1,85 @@
+"""Small, dependency-free checks shared by preparation and launch."""
+import hashlib
+import re
+import wave
+from pathlib import Path
+
+
+def voice_directory(env) -> Path:
+    """Keep each speaker's default and language references in one namespace."""
+    root = Path(env.get("VOICES_DIR", "/voices"))
+    preset = env.get("VOICE", "captain")
+    if preset not in {"captain", "painty", "custom"}:
+        raise ValueError("VOICE must be captain, painty, or custom")
+    return root if preset == "painty" else root / preset
+
+
+def remote_audio_uri(audio: Path, env) -> str:
+    """Map a local reference into the corresponding mount on the TTS server."""
+    root = Path(env.get("VOICES_DIR", "/voices")).resolve()
+    remote = Path(env.get("TTS_VOICES_DIR", "/voices"))
+    if not remote.is_absolute():
+        raise ValueError("TTS_VOICES_DIR must be an absolute path on the TTS server")
+    try:
+        relative = audio.resolve().relative_to(root)
+    except ValueError as exc:
+        raise ValueError("Reference audio must be inside VOICES_DIR") from exc
+    return (remote / relative).as_uri()
+
+
+def language_key(language: str) -> str:
+    code = language.strip().lower().replace("_", "-")
+    if not re.fullmatch(r"[a-z]{2,3}(?:-[a-z0-9]{2,8})*", code):
+        raise ValueError(f"Invalid reference language code: {language!r}")
+    return code
+
+
+def reference_for_language(default: dict, references: dict, language: str | None) -> dict:
+    code = (language or "").strip().lower().replace("_", "-")
+    return references.get(code, references.get(code.split("-")[0], default))
+
+
+def validate_voice(directory: Path) -> dict:
+    return _validate_pair(directory / "pirate_ref.wav", directory / "pirate_ref.txt",
+                          "Provide both voices/pirate_ref.wav and voices/pirate_ref.txt, or run voice-init")
+
+
+def validate_language_voices(directory: Path) -> dict:
+    """Validate voices/langs/<lang>.wav + <lang>.txt pairs; returns {lang: details}."""
+    voices = {}
+    if not directory.is_dir():
+        raise ValueError(f"Language reference directory does not exist: {directory}")
+    for audio in sorted(directory.glob("*.wav")):
+        transcript = audio.with_suffix(".txt")
+        code = language_key(audio.stem)
+        if code in voices:
+            raise ValueError(f"Duplicate reference language code: {code}")
+        voices[code] = _validate_pair(
+            audio, transcript, f"{audio.name} needs a matching transcript {transcript.name}")
+    for transcript in directory.glob("*.txt"):
+        if not transcript.with_suffix(".wav").is_file():
+            raise ValueError(f"{transcript.name} needs a matching WAV")
+    return voices
+
+
+def _validate_pair(audio: Path, transcript: Path, missing_message: str) -> dict:
+    if not audio.is_file() or not transcript.is_file():
+        raise ValueError(missing_message)
+    text = transcript.read_text(encoding="utf-8").strip()
+    if not text:
+        raise ValueError(f"{transcript.name}: reference transcript is empty")
+    with wave.open(str(audio), "rb") as wav:
+        seconds = wav.getnframes() / wav.getframerate()
+        if wav.getnchannels() != 1 or wav.getframerate() != 24000 or wav.getsampwidth() != 2:
+            raise ValueError(f"{audio.name}: reference WAV must be mono, 24 kHz, PCM 16-bit")
+        # OmniVoice recommends 3–10 s; up to 20 s is accepted for spliced multi-line
+        # references (longer clips slow cloning and may degrade quality).
+        if not 3 <= seconds <= 20:
+            raise ValueError(f"{audio.name}: reference duration is {seconds:.2f}s; use 3–20 seconds")
+        frames = wav.readframes(wav.getnframes())
+        if len(frames) != wav.getnframes() * 2:
+            raise ValueError(f"{audio.name}: reference WAV is truncated")
+        if not any(frames):
+            raise ValueError(f"{audio.name}: reference WAV is silent")
+    return {"audio": str(audio), "text": text, "seconds": round(seconds, 3),
+            "sha256": hashlib.sha256(audio.read_bytes()).hexdigest()}

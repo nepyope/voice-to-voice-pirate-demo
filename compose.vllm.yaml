@@ -1,0 +1,32 @@
+# Optional: docker compose -f compose.yaml -f compose.vllm.yaml up --build
+services:
+  tts:
+    image: ${VLLM_TTS_IMAGE:-vllm/vllm-omni:v0.28.0}
+    gpus: [{driver: nvidia, count: all}]
+    ipc: host
+    init: true
+    entrypoint: ["vllm", "serve"]
+    command: ["k2-fsa/OmniVoice", "--omni", "--host", "0.0.0.0", "--port", "8091",
+              "--trust-remote-code", "--allowed-local-media-path", "/voices", "--gpu-memory-utilization", "${TTS_GPU_MEMORY_UTILIZATION:-0.35}"]
+    environment:
+      HF_HOME: /cache/huggingface
+      HF_TOKEN: ${HF_TOKEN:-}
+    volumes:
+      - ./voices:/voices:ro
+      - hf-cache:/cache/huggingface
+    depends_on:
+      voice-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8091/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30m
+      retries: 4
+  s2s:
+    environment:
+      TTS_MODE: remote
+      TTS_BASE_URL: http://tts:8091/v1
+    depends_on:
+      tts:
+        condition: service_healthy

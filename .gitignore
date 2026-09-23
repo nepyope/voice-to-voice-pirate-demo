@@ -1,0 +1,16 @@
+.env
+.venv/
+**/node_modules/
+**/__pycache__/
+**/.pytest_cache/
+pytest-of-root/
+*.zip
+*.log
+artifacts/
+*.mp3
+# This repo is private: the Captain preset and the Painty references (voices/pirate_ref.*,
+# voices/langs/) are tracked. `scripts/package_demo.py --public` strips the Painty audio.
+voices/candidates/
+voices/previous-generated-captain/
+voices/custom/
+voices/captain-smoke*.wav

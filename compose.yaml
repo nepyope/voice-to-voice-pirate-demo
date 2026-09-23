@@ -1,0 +1,71 @@
+name: pirate-voice
+# Only `s2s` carries the `build:` section; `voice-init` reuses the same image.
+# Declaring `build:` on both makes Compose (bake) build and tag the image twice
+# in parallel, which fails with `image ... already exists`.
+x-backend: &backend
+  image: pirate-voice-backend:local
+  gpus: [{driver: nvidia, count: all}]
+  volumes:
+    - ./voices:/voices
+    - hf-cache:/cache/huggingface
+    - torch-cache:/cache/torch
+    - ./artifacts:/artifacts
+  environment: &backend-env
+    HF_TOKEN: ${HF_TOKEN:-}
+    TORCH_HOME: /cache/torch
+    VOICE: ${VOICE:-captain}
+    NUM_PIPELINES: ${NUM_PIPELINES:-1}
+    TTS_MODEL: k2-fsa/OmniVoice
+    LLM_MODEL: ${LLM_MODEL:-Qwen/Qwen3-4B-Instruct-2507}
+    LLM_BASE_URL: ${LLM_BASE_URL:-}
+    OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    HF_HUB_DISABLE_TELEMETRY: "1"
+services:
+  voice-init:
+    <<: *backend
+    command: ["python", "scripts/prepare_voice.py"]
+  s2s:
+    <<: *backend
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    init: true
+    depends_on:
+      voice-init:
+        condition: service_completed_successfully
+    environment:
+      <<: *backend-env
+      TTS_MODE: local
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/v1/pool', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30m
+      retries: 4
+    stop_grace_period: 30s
+  ui:
+    build: ./hf-realtime-voice
+    init: true
+    ports:
+      - "${UI_BIND:-127.0.0.1}:${UI_PORT:-7860}:7860"
+    environment:
+      SPEECH_TO_SPEECH_URL: ws://s2s:8765/v1/realtime
+      STARTUP_GREETING: ""
+    depends_on:
+      s2s:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:7860/api/health', timeout=5)"]
+      interval: 30s
+      timeout: 8s
+      retries: 3
+volumes:
+  hf-cache:
+  torch-cache:
+networks:
+  # Pinned subnet: Docker's defaults (172.18.0.0/16, 172.20.0.0/17) collide with routes
+  # advertised on the HF Tailscale tailnet, which silently blackholes container traffic.
+  default:
+    ipam:
+      config:
+        - subnet: ${COMPOSE_SUBNET:-172.30.0.0/24}

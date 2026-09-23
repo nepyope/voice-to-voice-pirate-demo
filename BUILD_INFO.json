@@ -1,0 +1,41 @@
+{
+  "date": "2026-09-23",
+  "source_attachment": "voice-to-voice-pirate-demo-2026-09-23.zip",
+  "speech_to_speech_commit": "ca5c33c9bb5e381288d315d1f8da122613845c4c",
+  "upstream_main_patch_check": "a6576590f2a63f0d7c090e306422d86e0e1756ce",
+  "reachy_profile_parser_check": "b9f58a3587d79a3275d4402d1a8d210649d62d50",
+  "vllm_omni_image": "vllm/vllm-omni:v0.28.0",
+  "vllm_llm_image": "vllm/vllm-openai:v0.30.0-cu129",
+  "default_voice": "captain",
+  "python_tests_passed": 58,
+  "python_version_tested": "3.12.14",
+  "javascript_tests_passed": 7,
+  "node_version_tested": "v24.19.0",
+  "compose_validation": {
+    "validator": "Docker Compose v2.30.3 standalone",
+    "configurations": 8,
+    "daemon_used": false
+  },
+  "current_revision_validation": {
+    "gpu_inference_tested": false,
+    "vllm_inference_tested": false,
+    "docker_build_tested": false,
+    "physical_robot_tested": false,
+    "browser_microphone_tested": false,
+    "native_reachy_profile_parser_passed": true
+  },
+  "historical_validation": {
+    "source": "reference/handoff-before-completion.md",
+    "status": "Supplied report, not reproduced in this workspace",
+    "in_process_gpu_run_reported": true,
+    "reported_vram_gb": 17.8,
+    "reported_text_to_first_audio_seconds": 2.5,
+    "vllm_inference_tested": false
+  },
+  "source_export": "Complete archive preserves supplied audio; --public includes only voices/captain and excludes third-party reference recordings/transcripts.",
+  "public_export_tests": {
+    "passed": 57,
+    "skipped": 1,
+    "skip_reason": "Private Painty reference test is omitted with those assets."
+  }
+}
